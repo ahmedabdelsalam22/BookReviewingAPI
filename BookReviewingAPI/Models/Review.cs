@@ -10,5 +10,6 @@ namespace BookReviewingAPI.Models
         public string ReviewText { get; set; }
         public decimal Rating { get; set; }
         public Book Book { get; set; }
+        public Reviewer Reviewer { get; set; }
     }
 }
