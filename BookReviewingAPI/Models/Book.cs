@@ -8,6 +8,6 @@
         public DateTime DatePublished { get; set; }
         public List<Review> Reviews { get; set; }
         public List<BookCategory> BookCategories { get; set; }
-
+        public List<BookAuthor> BookAuthors { get; set; }
     }
 }
