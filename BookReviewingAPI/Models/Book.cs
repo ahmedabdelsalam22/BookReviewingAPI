@@ -7,5 +7,7 @@
         public string Isbn { get; set; }
         public DateTime DatePublished { get; set; }
         public List<Review> Reviews { get; set; }
+        public List<BookCategory> BookCategories { get; set; }
+
     }
 }
