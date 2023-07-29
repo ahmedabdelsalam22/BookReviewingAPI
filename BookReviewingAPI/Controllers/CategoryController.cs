@@ -115,7 +115,30 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> GetBooksByCategoryId(int categoryId)
         {
-
+            try
+            {
+                Category? category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
+                if (category == null)
+                {
+                    return NotFound();
+                }
+                List<Book> books = await _bookRepository.GetBooksByCategoryId(categoryId);
+                if (books == null)
+                {
+                    return NotFound();
+                }
+                _apiResponse.StatusCode = HttpStatusCode.OK;
+                _apiResponse.IsSuccess = true;
+                _apiResponse.Result = books;
+                return _apiResponse;
+            }
+            catch (Exception e)
+            {
+                _apiResponse.IsSuccess = false;
+                _apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                _apiResponse.ErrorMessage = new List<string>() { e.ToString() };
+                return _apiResponse;
+            }
         }
     }
 }
