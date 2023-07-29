@@ -38,7 +38,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             return await query.ToListAsync();
         }
 
-        public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true)
+        public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true,Expression<Func<T, object>>[]? includes =null)
         {
             IQueryable<T> query = _dbSet;
             if (filter != null)
@@ -48,6 +48,11 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             if (!tracked)
             {
                 query = query.AsNoTracking();
+            }
+            if (includes != null)
+            {
+                query = includes.Aggregate(query,
+                          (current, include) => current.Include(include));
             }
             var result = await query.FirstOrDefaultAsync();
             
