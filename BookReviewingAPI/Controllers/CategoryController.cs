@@ -75,5 +75,13 @@ namespace BookReviewingAPI.Controllers
                 return _apiResponse;
             }
         }
+        [HttpGet("categories/bookId/{bookId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> CategoriesByBookId(int bookId) 
+        {
+
+        }
     }
 }
