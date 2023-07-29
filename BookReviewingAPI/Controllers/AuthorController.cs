@@ -108,7 +108,29 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetBooksByAuthorId(int authorId) 
         {
+            try
+            {
+                Author? author = await _authorRepository.GetAsync(filter: x => x.Id == authorId);
 
+                if (author == null)
+                {
+                    return NotFound("No authors found with this id");
+                }
+                List<Book> books = _bookRepository.GetBooksByAuthorId(authorId);
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = books;
+
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
         }
     }
 }
