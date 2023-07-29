@@ -116,7 +116,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No authors found with this id");
                 }
-                List<Book> books = _bookRepository.GetBooksByAuthorId(authorId);
+                List<Book> books = await _bookRepository.GetBooksByAuthorId(authorId);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
