@@ -7,16 +7,18 @@ using System.Net;
 
 namespace BookReviewingAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class AuthorController : ControllerBase
     {
-        private readonly IAuthorRepository _repository;
+        private readonly IAuthorRepository _authorRepository;
+        private readonly IBookRepository _bookRepository;
         private APIResponse _response; 
-        public AuthorController(IAuthorRepository repository)
+        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository)
         {
-            _repository = repository;
+            _authorRepository = repository;
             _response = new APIResponse();
+            _bookRepository = bookRepository;
         }
         [HttpGet("allAuthors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -25,7 +27,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                IEnumerable<Author> authors = await _repository.GetAllAsync();
+                IEnumerable<Author> authors = await _authorRepository.GetAllAsync();
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
                 _response.Result = authors;
@@ -50,7 +52,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Author? author = await _repository.GetAsync(filter: x => x.Id == id, tracked: false);
+                Author? author = await _authorRepository.GetAsync(filter: x => x.Id == id, tracked: false);
                 if (author == null)
                 {
                     return NotFound("No authors exists with this id");
@@ -69,6 +71,47 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
 
+        }
+
+        [HttpGet("authors/{bookId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetAuthorByBookId(int bookId) 
+        {
+            try
+            {
+                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId, includeProperties: "BookAuthors");
+
+                if (book == null)
+                {
+                    return NotFound("No books found with this id");
+                }
+
+                List<BookAuthor> bookAuthors = book.BookAuthors.ToList();
+
+                List<Author> bookAuthorsList = new List<Author>();
+
+                foreach (var item in bookAuthors)
+                {
+                    bookAuthorsList.Add(item.Author);
+                }
+                if (bookAuthorsList == null)
+                {
+                    return NotFound("No authors found with this bookId");
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = bookAuthorsList;
+
+                return _response;
+            }
+            catch (Exception e) 
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
         }
     }
 }
