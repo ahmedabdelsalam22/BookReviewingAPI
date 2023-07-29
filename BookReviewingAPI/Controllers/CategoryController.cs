@@ -2,11 +2,12 @@
 using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Net;
 
 namespace BookReviewingAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -38,6 +39,35 @@ namespace BookReviewingAPI.Controllers
                 return _apiResponse;
             }
             catch (Exception e) 
+            {
+                _apiResponse.IsSuccess = false;
+                _apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                _apiResponse.ErrorMessage = new List<string>() { e.ToString() };
+                return _apiResponse;
+            }
+        }
+        [HttpGet("category/{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> CategoryById(int categoryId) 
+        {
+            try 
+            {
+                if (categoryId == 0)
+                {
+                    return BadRequest();
+                }
+                Category category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
+                if (category == null)
+                {
+                    return NotFound("No category found with this id");
+                }
+                _apiResponse.StatusCode = HttpStatusCode.OK;
+                _apiResponse.IsSuccess = true;
+                _apiResponse.Result = category;
+                return _apiResponse;
+            }catch(Exception e) 
             {
                 _apiResponse.IsSuccess = false;
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
