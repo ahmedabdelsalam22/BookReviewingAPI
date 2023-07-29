@@ -100,12 +100,6 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No authors found with this bookId");
                 }
-                _response.StatusCode = HttpStatusCode.OK;
-                _response.IsSuccess = true;
-                _response.Result = bookAuthorsList;
-
-                return _response;
-            }
             catch (Exception e) 
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
@@ -113,48 +107,8 @@ namespace BookReviewingAPI.Controllers
                 _response.ErrorMessage = new List<string> { e.ToString() };
                 return _response;
             }
-        }
-
-        [HttpGet("books/{authorId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetBooksByAuthorId(int authorId)
-        {
-            try
-            {
-                Author? author = await _authorRepository.GetAsync(filter: x => x.Id == authorId, includeProperties: "BookAuthors");
-
-                if (author == null)
-                {
-                    return NotFound("No Authors found with this id");
                 }
 
-                List<BookAuthor> bookAuthors = author.BookAuthors.ToList();
 
-                List<Book> bookAuthorsList = new List<Book>();
-
-                foreach (var item in bookAuthors)
-                {
-                    bookAuthorsList.Add(item.Book);
-                }
-
-                if (bookAuthorsList == null)
-                {
-                    return NotFound("No authors found with this bookId");
-                }
-                _response.StatusCode = HttpStatusCode.OK;
-                _response.IsSuccess = true;
-                _response.Result = bookAuthorsList;
-
-                return _response;
-            }
-            catch (Exception e)
-            {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                _response.ErrorMessage = new List<string> { e.ToString() };
-                return _response;
-            }
-        }
     }
 }
