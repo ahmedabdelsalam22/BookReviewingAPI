@@ -6,5 +6,6 @@ namespace BookReviewingAPI.Repository.IRepository
     public interface IAuthorRepository : IRepository<Author>
     {
         void UpdateAsync(Author author);
+        public List<Author> GetAuthorByBookId(int BookId);
     }
 }
