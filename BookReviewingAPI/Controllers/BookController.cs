@@ -8,7 +8,7 @@ using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookReviewingAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class BookController : ControllerBase
     {
