@@ -74,6 +74,33 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [HttpGet("book/isbn/{isbn}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetBookByISBN(string isbn)
+        {
+            try
+            {
+                Book? book = await _repository.GetAsync(filter: x => x.Isbn == isbn, tracked: false);
+                if (book == null)
+                {
+                    return NotFound("No books exists with this isbn");
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = book;
+
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+
+        }
 
     }
 }
