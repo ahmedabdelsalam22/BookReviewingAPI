@@ -81,7 +81,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> CategoriesByBookId(int bookId) 
+        public async Task<ActionResult<APIResponse>> GetCategoriesByBookId(int bookId) 
         {
             try 
             {
@@ -108,6 +108,14 @@ namespace BookReviewingAPI.Controllers
                 _apiResponse.ErrorMessage = new List<string>() { e.ToString() };
                 return _apiResponse;
             }
+        }
+        [HttpGet("books/categoryId/{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> GetBooksByCategoryId(int categoryId)
+        {
+
         }
     }
 }
