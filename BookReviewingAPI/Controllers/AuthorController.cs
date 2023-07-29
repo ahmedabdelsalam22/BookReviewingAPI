@@ -39,6 +39,36 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
-        
+        [HttpGet("author/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetAuthorById(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest();
+                }
+                Author? author = await _repository.GetAsync(filter: x => x.Id == id, tracked: false);
+                if (author == null)
+                {
+                    return NotFound("No authors exists with this id");
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = author;
+
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+
+        }
     }
 }
