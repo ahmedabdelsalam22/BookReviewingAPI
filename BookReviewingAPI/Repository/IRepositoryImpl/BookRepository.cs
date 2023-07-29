@@ -11,7 +11,6 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         {
             _db = db;
         }
-
         public void UpdateAsync(Book book)
         {
             _db.Books.Update(book);
