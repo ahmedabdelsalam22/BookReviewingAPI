@@ -12,12 +12,14 @@ namespace BookReviewingAPI.Controllers
     public class CategoryController : ControllerBase
     {
         private ICategoryRepository _categoryRepository;
+        private IBookRepository _bookRepository;
         private readonly APIResponse _apiResponse;
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public CategoryController(ICategoryRepository categoryRepository, IBookRepository bookRepository)
         {
             _categoryRepository = categoryRepository;
             _apiResponse = new APIResponse();
+            _bookRepository = bookRepository;
         }
 
         [HttpGet("allCategories")]
@@ -81,7 +83,31 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> CategoriesByBookId(int bookId) 
         {
+            try 
+            {
+                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false);
+                if (book == null)
+                {
+                    return NotFound();
+                }
+                List<Category> categories = await _categoryRepository.GetCategoriesByBookId(bookId);
+                if (categories == null)
+                {
+                    return NotFound();
+                }
+                _apiResponse.StatusCode = HttpStatusCode.OK;
+                _apiResponse.IsSuccess = true;
+                _apiResponse.Result = categories;
+                return _apiResponse;
 
+            }
+            catch (Exception e)
+            {
+                _apiResponse.IsSuccess = false;
+                _apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                _apiResponse.ErrorMessage = new List<string>() { e.ToString() };
+                return _apiResponse;
+            }
         }
     }
 }
