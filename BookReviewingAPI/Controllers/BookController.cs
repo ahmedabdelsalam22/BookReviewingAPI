@@ -4,6 +4,7 @@ using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookReviewingAPI.Controllers
 {
@@ -29,15 +30,48 @@ namespace BookReviewingAPI.Controllers
             {
                 IEnumerable<Book> books = await _repository.GetAllAsync();
                 _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
                 _response.Result = books;
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+        }
+        [HttpGet("book/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetBookById(int id) 
+        {
+            try
+            {
+                if (id == 0) 
+                {
+                    return BadRequest();
+                }
+                Book? book = await _repository.GetAsync(filter: x => x.Id == id, tracked: false);
+                if (book == null) 
+                {
+                    return NotFound("No books exists with this id");
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = book;
+
                 return _response;
             }
             catch (Exception e) 
             {
-                _response.ErrorMessage = new List<string> { e.ToString() };
                 _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
                 return _response;
             }
+
         }
 
 

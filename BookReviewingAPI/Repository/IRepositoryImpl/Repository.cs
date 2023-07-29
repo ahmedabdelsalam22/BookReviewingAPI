@@ -55,6 +55,12 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             
         }
 
+        public async Task<T> GetFirstOrDefault(Expression<Func<T, bool>>? filter = null)
+        {
+            var result = await _dbSet.FirstOrDefaultAsync(filter);
+            return result;
+        }
+
         public async Task SaveChanges()
         {
             await _db.SaveChangesAsync();
