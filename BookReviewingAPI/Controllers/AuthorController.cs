@@ -70,5 +70,13 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpGet("author/book/{bookId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetAuthorByBookId(int bookId) 
+        {
+
+        }
     }
 }

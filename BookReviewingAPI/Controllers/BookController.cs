@@ -42,18 +42,18 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
-        [HttpGet("book/{id}")]
+        [HttpGet("book/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetBookById(int id) 
+        public async Task<ActionResult<APIResponse>> GetBookById(int bookId) 
         {
             try
             {
-                if (id == 0) 
+                if (bookId == 0) 
                 {
                     return BadRequest();
                 }
-                Book? book = await _repository.GetAsync(filter: x => x.Id == id, tracked: false);
+                Book? book = await _repository.GetAsync(filter: x => x.Id == bookId, tracked: false);
                 if (book == null) 
                 {
                     return NotFound("No books exists with this id");
@@ -102,14 +102,14 @@ namespace BookReviewingAPI.Controllers
 
         }
 
-        [HttpGet("book/{id}/rating")]
+        [HttpGet("book/{bookId}/rating")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetRatingByBookId(int id)
+        public async Task<ActionResult<APIResponse>> GetRatingByBookId(int bookId)
         {
             try
             {
-                Book? book = await _repository.GetAsync(filter: x => x.Id == id, tracked: false,includeProperties: "Reviews");
+                Book? book = await _repository.GetAsync(filter: x => x.Id == bookId, tracked: false,includeProperties: "Reviews");
 
                 if (book == null)
                 {
