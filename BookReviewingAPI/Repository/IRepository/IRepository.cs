@@ -9,5 +9,6 @@ namespace BookReviewingAPI.Repository.IRepository
         void Delete(T entity);
         Task CreateAsync(T entity);
         Task SaveChanges();
+        Task<T> GetFirstOrDefault(Expression<Func<T, bool>>? filter = null);
     }
 }
