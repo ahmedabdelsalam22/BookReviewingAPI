@@ -1,6 +1,8 @@
 ﻿using BookReviewingAPI.Data;
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BookReviewingAPI.Repository.IRepositoryImpl
 {
@@ -15,11 +17,16 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         {
             _db.Books.Update(book);
         }
-        public List<Book> GetBooksByAuthorId(int authorId)
+        public async Task<List<Book>> GetBooksByAuthorId(int authorId)
         {
-            List<Book> books = _db.BookAuthors.Where(x => x.AuthorId == authorId).Select(x => x.Book).ToList();
+            List<Book> books =await _db.BookAuthors.Where(x => x.AuthorId == authorId).Select(x => x.Book).ToListAsync();
             return books;
         }
 
+        public async Task<List<Book>> GetBooksByCategoryId(int categoryId)
+        {
+            List<Book> books = await _db.BookCategories.Where(x => x.CategoryId == categoryId).Select(x => x.Book).ToListAsync();
+            return books;
+        }
     }
 }
