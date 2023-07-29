@@ -13,7 +13,7 @@ namespace BookReviewingAPI.Controllers
     {
         private readonly IAuthorRepository _authorRepository;
         private readonly IBookRepository _bookRepository;
-        private APIResponse _response; 
+        private APIResponse _response;
         public AuthorController(IAuthorRepository repository, IBookRepository bookRepository)
         {
             _authorRepository = repository;
@@ -73,33 +73,27 @@ namespace BookReviewingAPI.Controllers
 
         }
 
-        [HttpGet("authors/{bookId}")]
+        [HttpGet("{bookId}/authors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetAuthorByBookId(int bookId) 
         {
             try
             {
-                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId, includeProperties: "BookAuthors");
+                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId);
 
                 if (book == null)
                 {
                     return NotFound("No books found with this id");
                 }
+                List<Author> authors = _authorRepository.GetAuthorByBookId(bookId);
 
-                List<BookAuthor> bookAuthors = book.BookAuthors.ToList();
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = authors;
 
-                List<Author> bookAuthorsList = new List<Author>();
-
-                foreach (var item in bookAuthors)
-                {
-                    bookAuthorsList.Add(item.Author);
-                } 
-                
-                if (bookAuthorsList == null)
-                {
-                    return NotFound("No authors found with this bookId");
-                }
+                return _response;
+            }
             catch (Exception e) 
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
@@ -107,8 +101,14 @@ namespace BookReviewingAPI.Controllers
                 _response.ErrorMessage = new List<string> { e.ToString() };
                 return _response;
             }
-                }
+        }
 
+        [HttpGet("{authorId}/books")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetBooksByAuthorId(int authorId) 
+        {
 
+        }
     }
 }

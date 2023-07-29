@@ -11,9 +11,16 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         {
             _db = db;
         }
+
         public void UpdateAsync(Book book)
         {
             _db.Books.Update(book);
         }
+        public List<Book> GetBooksByAuthorId(int authorId)
+        {
+            List<Book> books = _db.BookAuthors.Where(x => x.AuthorId == authorId).Select(x => x.Book).ToList();
+            return books;
+        }
+
     }
 }
