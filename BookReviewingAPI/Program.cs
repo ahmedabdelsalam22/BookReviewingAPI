@@ -28,11 +28,11 @@ if (app.Environment.IsDevelopment())
 }
 
 // Seeding Database
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.SeedDataContext();
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//    dbContext.SeedDataContext();
+//}
 
 app.UseHttpsRedirection();
 
@@ -40,4 +40,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//app.Run();
+app.Run();
