@@ -41,5 +41,36 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+        [HttpGet("country/{countryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetCountryById(int countryId)
+        {
+            try
+            {
+                if (countryId == 0)
+                {
+                    return BadRequest();
+                }
+                Country? country = await _repository.GetAsync(filter: x => x.Id == countryId, tracked: false);
+                if (country == null)
+                {
+                    return NotFound("No countries exists with this id");
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = country;
+
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+
+        }
     }
 }
