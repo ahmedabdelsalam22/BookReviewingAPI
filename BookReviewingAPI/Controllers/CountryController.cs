@@ -95,8 +95,6 @@ namespace BookReviewingAPI.Controllers
                 }
                 Author? author = await _authorRepository.GetAsync(filter: x => x.Id == authorId, tracked: false, includeProperties: "Country");
 
-                Country country = author.Country;
-
                 if (author == null)
                 {
                     return NotFound("No authors exists with this id");
