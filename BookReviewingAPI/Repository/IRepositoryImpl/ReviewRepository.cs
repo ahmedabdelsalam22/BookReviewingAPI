@@ -4,16 +4,16 @@ using BookReviewingAPI.Repository.IRepository;
 
 namespace BookReviewingAPI.Repository.IRepositoryImpl
 {
-    public class ReviewerRepository : Repository<Reviewer>, IReviewerRepository
+    public class ReviewRepository : Repository<Review>, IReviewRepository
     {
         private readonly ApplicationDbContext _db;
-        public ReviewerRepository(ApplicationDbContext db) : base(db)
+        public ReviewRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
         }
-        public void UpdateAsync(Reviewer reviewer)
+        public void UpdateAsync(Review review)
         {
-            _db.Reviewers.Update(reviewer);
+            _db.Reviews.Update(review);
         }
     }
 }
