@@ -1,4 +1,4 @@
-using BookReviewingAPI.Models;
+﻿using BookReviewingAPI.Models;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
@@ -12,13 +12,13 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class ReviewerController : ControllerBase
     {
-        private readonly IReviewerRepository _reviewreRepository;
+        private readonly IReviewerRepository _reviewerRepository;
         private APIResponse _response;
         private readonly IReviewRepository _reviewRepository;
 
         public ReviewerController(IReviewerRepository reviewreRepository, IReviewRepository reviewRepository)
         {
-            _reviewreRepository = reviewreRepository;
+            _reviewerRepository = reviewreRepository;
             _response = new APIResponse();
             _reviewRepository = reviewRepository;
         }
@@ -30,7 +30,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                IEnumerable<Reviewer> reviewers = await _reviewreRepository.GetAllAsync();
+                IEnumerable<Reviewer> reviewers = await _reviewerRepository.GetAllAsync();
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
                 _response.Result = reviewers;
@@ -56,7 +56,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Reviewer? reviewer = await _reviewreRepository.GetAsync(filter: x => x.Id == id, tracked: false);
+                Reviewer? reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == id, tracked: false);
                 if (reviewer == null)
                 {
                     return NotFound("No reviewers exists with this id");
@@ -88,7 +88,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Reviewer? reviewer = await _reviewreRepository.GetAsync(filter: x => x.Id == reviewerId, tracked: false, includeProperties: "Reviews");
+                Reviewer? reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, tracked: false, includeProperties: "Reviews");
                 if (reviewer == null)
                 {
                     return NotFound();
