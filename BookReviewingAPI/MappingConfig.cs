@@ -13,6 +13,7 @@ namespace BookReviewingAPI
             CreateMap<Review, ReviewDTO>();
             CreateMap<Category, CategoryDTO>();
             CreateMap<Country, CountryDTO>();
+            CreateMap<Reviewer, ReviewerDTO>();
         }
     }
 }

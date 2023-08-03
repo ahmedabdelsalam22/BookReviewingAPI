@@ -1,4 +1,6 @@
-﻿using BookReviewingAPI.Models;
+﻿using AutoMapper;
+using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
@@ -14,25 +16,34 @@ namespace BookReviewingAPI.Controllers
     {
         private readonly IReviewerRepository _reviewerRepository;
         private readonly IReviewRepository _reviewRepository;
+        private APIResponse _response;
+        private IMapper _mapper;
 
-        public ReviewerController(IReviewerRepository reviewreRepository, IReviewRepository reviewRepository)
+        public ReviewerController(IReviewerRepository reviewreRepository, IReviewRepository reviewRepository,IMapper mapper)
         {
             _reviewerRepository = reviewreRepository;
             _response = new APIResponse();
             _reviewRepository = reviewRepository;
+            _mapper = mapper;
         }
 
         [HttpGet("allReviewers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<APIResponse> GetAllReviewers()
+        public async Task<ActionResult<APIResponse>> GetAllReviewers()
         {
             try
             {
                 IEnumerable<Reviewer> reviewers = await _reviewerRepository.GetAllAsync();
+                if (reviewers == null) 
+                {
+                    return NotFound();
+                }
+                List<ReviewDTO> reviewDTOs = _mapper.Map<List<ReviewDTO>>(reviewers);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = reviewers;
+                _response.Result = reviewDTOs;
                 return _response;
             }
             catch (Exception e)
@@ -60,9 +71,11 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No reviewers exists with this id");
                 }
+                ReviewDTO reviewDTOs = _mapper.Map<ReviewDTO>(reviewer);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = reviewer;
+                _response.Result = reviewDTOs;
 
                 return _response;
             }
