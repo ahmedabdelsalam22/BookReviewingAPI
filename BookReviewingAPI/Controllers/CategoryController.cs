@@ -138,9 +138,12 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound();
                 }
+
+                List<BookDTO> bookDTOs = _mapper.Map<List<BookDTO>>(books);
+
                 _apiResponse.StatusCode = HttpStatusCode.OK;
                 _apiResponse.IsSuccess = true;
-                _apiResponse.Result = books;
+                _apiResponse.Result = bookDTOs;
                 return _apiResponse;
             }
             catch (Exception e)
