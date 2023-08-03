@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Runtime.InteropServices;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookReviewingAPI.Controllers
@@ -12,26 +14,34 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        private IBookRepository _repository;
+        private readonly IBookRepository _repository;
         private APIResponse _response;
-
-        public BookController(IBookRepository repository)
+        private IMapper _mapper;
+        public BookController(IBookRepository repository, IMapper mapper)
         {
             _repository = repository;
             _response = new APIResponse();
+            _mapper = mapper;
         }
 
         [HttpGet("allBooks")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<APIResponse> GetAllBooks()
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetAllBooks()
         {
             try
             {
                 IEnumerable<Book> books = await _repository.GetAllAsync();
+                if (books == null) 
+                {
+                    return NotFound();
+                }
+                List<BookDTO> bookDTOs = _mapper.Map<List<BookDTO>>(books);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = books;
+                _response.Result = bookDTOs;
                 return _response;
             }
             catch (Exception e)
@@ -45,6 +55,7 @@ namespace BookReviewingAPI.Controllers
         [HttpGet("book/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> GetBookById(int bookId) 
         {
             try
@@ -58,9 +69,11 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No books exists with this id");
                 }
+                BookDTO bookDTO = _mapper.Map<BookDTO>(book);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = book;
+                _response.Result = bookDTO;
 
                 return _response;
             }
