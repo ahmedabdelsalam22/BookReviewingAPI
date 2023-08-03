@@ -3,8 +3,8 @@ using BookReviewingAPI.Repository.IRepositoryImpl;
 
 namespace BookReviewingAPI.Repository.IRepository
 {
-    public interface IReviewerRepository : IRepository<Reviewer>
+    public interface IReviewRepository : IRepository<Review>
     {
-        void UpdateAsync(Reviewer reviewer);
+        void UpdateAsync(Review reviewer);
     }
 }

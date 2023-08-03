@@ -13,13 +13,15 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class ReviewerController : ControllerBase
     {
-        private readonly IReviewreRepository _reviewreRepository;
+        private readonly IReviewerRepository _reviewreRepository;
         private APIResponse _response;
+        private readonly IReviewRepository _reviewRepository;
 
-        public ReviewerController(IReviewreRepository reviewreRepository)
+        public ReviewerController(IReviewerRepository reviewreRepository, IReviewRepository reviewRepository)
         {
             _reviewreRepository = reviewreRepository;
             _response = new APIResponse();
+            _reviewRepository = reviewRepository;
         }
 
         [HttpGet("allReviewers")]
@@ -123,6 +125,53 @@ namespace BookReviewingAPI.Controllers
                 _response.ErrorMessage = new List<string> { e.ToString() };
                 return _response;
             }
+        }
+
+        [HttpGet("reviewers/{reviewId}/reviewer")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetReviewerByReviewId(int reviewId)
+        {
+            try
+            {
+                if (reviewId == 0)
+                {
+                    return BadRequest();
+                }
+                Review? review = await _reviewRepository.GetAsync(filter: x => x.Id == reviewId, tracked: false, includeProperties: "Reviewer");
+                if (review == null)
+                {
+                    return NotFound("No reviews exists with this id");
+                }
+                string json = JsonConvert.SerializeObject(review, Formatting.Indented, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+
+                var reviewJson = JsonConvert.DeserializeObject<Review>(json);
+                if (reviewJson == null)
+                {
+                    return NotFound();
+                }
+                Reviewer reviewer = reviewJson.Reviewer;
+                if (reviewer == null)
+                {
+                    return NotFound();
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = reviewer;
+
+                return _response;
+            }
+            catch (Exception e) 
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+
         }
     }
 }
