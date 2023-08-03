@@ -99,6 +99,8 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No books exists with this isbn");
                 }
+                BookDTO bookDTO = _mapper.Map<BookDTO>(book);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
                 _response.Result = book;
@@ -131,9 +133,11 @@ namespace BookReviewingAPI.Controllers
 
                 List<Review> reviews = book.Reviews.ToList();
 
+                List<ReviewDTO> reviewDTOs = _mapper.Map<List<ReviewDTO>>(reviews);
+
                 List<int> ratings = new List<int>();
 
-                foreach (var item in reviews) 
+                foreach (var item in reviewDTOs) 
                 {
                     ratings.Add(item.Rating);
                 }
