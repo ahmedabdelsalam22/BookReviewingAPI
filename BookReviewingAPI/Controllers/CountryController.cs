@@ -1,5 +1,7 @@
-﻿using Azure;
+﻿using AutoMapper;
+using Azure;
 using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
@@ -20,12 +22,14 @@ namespace BookReviewingAPI.Controllers
         private readonly ICountryRepository _countryRepository;
         private readonly IAuthorRepository _authorRepository;
         private APIResponse _response;
+        private IMapper _mapper;
 
-        public CountryController(ICountryRepository repository,IAuthorRepository authorRepository)
+        public CountryController(ICountryRepository repository,IAuthorRepository authorRepository,IMapper mapper)
         {
             _countryRepository = repository;
             _response = new APIResponse();
             _authorRepository = authorRepository;
+            _mapper = mapper;
         }
         [HttpGet("allCountries")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -40,9 +44,11 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No countries exists with this id");
                 }
+                List<CountryDTO> countryDTOs = _mapper.Map<List<CountryDTO>>(countries);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = countries;
+                _response.Result = countryDTOs;
                 return _response;
             }
             catch (Exception e)
@@ -70,9 +76,10 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No countries exists with this id");
                 }
+                CountryDTO countryDTO = _mapper.Map<CountryDTO>(country);
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = country;
+                _response.Result = countryDTO;
 
                 return _response;
             }
@@ -114,6 +121,7 @@ namespace BookReviewingAPI.Controllers
                  {
                      return NotFound("No countries exists with this id");
                  }
+
                  _response.StatusCode = HttpStatusCode.OK;
                  _response.IsSuccess = true;
                  _response.Result = country;
