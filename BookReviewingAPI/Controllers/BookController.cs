@@ -55,6 +55,7 @@ namespace BookReviewingAPI.Controllers
         [HttpGet("book/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> GetBookById(int bookId) 
         {
             try
@@ -68,9 +69,11 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No books exists with this id");
                 }
+                BookDTO bookDTO = _mapper.Map<BookDTO>(book);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = book;
+                _response.Result = bookDTO;
 
                 return _response;
             }
