@@ -13,7 +13,6 @@ namespace BookReviewingAPI.Controllers
     public class ReviewerController : ControllerBase
     {
         private readonly IReviewerRepository _reviewerRepository;
-        private APIResponse _response;
         private readonly IReviewRepository _reviewRepository;
 
         public ReviewerController(IReviewerRepository reviewreRepository, IReviewRepository reviewRepository)
