@@ -64,9 +64,12 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No authors exists with this id");
                 }
+
+                AuthorDTO authorDTO = _mapper.Map<AuthorDTO>(author);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = author;
+                _response.Result = authorDTO;
 
                 return _response;
             }
