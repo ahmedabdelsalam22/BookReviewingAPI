@@ -8,7 +8,7 @@ using System.Net;
 
 namespace BookReviewingAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class ReviewController : ControllerBase
     {

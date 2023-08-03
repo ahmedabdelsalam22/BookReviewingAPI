@@ -1,5 +1,7 @@
-﻿using Azure;
+﻿using AutoMapper;
+using Azure;
 using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +16,13 @@ namespace BookReviewingAPI.Controllers
         private readonly IAuthorRepository _authorRepository;
         private readonly IBookRepository _bookRepository;
         private APIResponse _response;
-        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository)
+        private IMapper _mapper;
+        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository, IMapper mapper)
         {
             _authorRepository = repository;
             _response = new APIResponse();
             _bookRepository = bookRepository;
+            _mapper = mapper;
         }
         [HttpGet("allAuthors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -28,9 +32,12 @@ namespace BookReviewingAPI.Controllers
             try
             {
                 IEnumerable<Author> authors = await _authorRepository.GetAllAsync();
+
+                List<AuthorDTO> authorsDTO = _mapper.Map<List<AuthorDTO>>(authors);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = authors;
+                _response.Result = authorsDTO;
                 return _response;
             }
             catch (Exception e)
