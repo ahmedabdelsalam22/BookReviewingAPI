@@ -1,4 +1,6 @@
-﻿using BookReviewingAPI.Models;
+﻿using AutoMapper;
+using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +16,14 @@ namespace BookReviewingAPI.Controllers
         private ICategoryRepository _categoryRepository;
         private IBookRepository _bookRepository;
         private readonly APIResponse _apiResponse;
+        private IMapper _mapper;
 
-        public CategoryController(ICategoryRepository categoryRepository, IBookRepository bookRepository)
+        public CategoryController(ICategoryRepository categoryRepository, IBookRepository bookRepository,IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _apiResponse = new APIResponse();
             _bookRepository = bookRepository;
+            _mapper = mapper;
         }
 
         [HttpGet("allCategories")]
@@ -35,9 +39,11 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound();
                 }
+                List<CategoryDTO> categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
+
                 _apiResponse.StatusCode = HttpStatusCode.OK;
                 _apiResponse.IsSuccess = true;
-                _apiResponse.Result = categories;
+                _apiResponse.Result = categoryDTOs;
                 return _apiResponse;
             }
             catch (Exception e) 
@@ -52,7 +58,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> CategoryById(int categoryId) 
+        public async Task<ActionResult<APIResponse>> GetCategoryById(int categoryId) 
         {
             try 
             {
@@ -65,9 +71,11 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No category found with this id");
                 }
+                CategoryDTO categoryDTO = _mapper.Map<CategoryDTO>(category);
+
                 _apiResponse.StatusCode = HttpStatusCode.OK;
                 _apiResponse.IsSuccess = true;
-                _apiResponse.Result = category;
+                _apiResponse.Result = categoryDTO;
                 return _apiResponse;
             }catch(Exception e) 
             {
