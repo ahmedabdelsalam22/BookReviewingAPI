@@ -99,6 +99,8 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No books exists with this isbn");
                 }
+                BookDTO bookDTO = _mapper.Map<BookDTO>(book);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
                 _response.Result = book;
