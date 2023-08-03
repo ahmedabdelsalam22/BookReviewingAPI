@@ -69,9 +69,12 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No reviews exists with this id");
                 }
+
+                ReviewDTO reviewDTO = _mapper.Map<ReviewDTO>(review);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = review;
+                _response.Result = reviewDTO;
 
                 return _response;
             }
