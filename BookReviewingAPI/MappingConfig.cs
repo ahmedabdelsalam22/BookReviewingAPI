@@ -10,6 +10,7 @@ namespace BookReviewingAPI
         {
             CreateMap<Author, AuthorDTO>();
             CreateMap<Book, BookDTO>();
+            CreateMap<Review, ReviewDTO>();
         }
     }
 }

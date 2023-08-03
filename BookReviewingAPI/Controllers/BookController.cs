@@ -133,9 +133,11 @@ namespace BookReviewingAPI.Controllers
 
                 List<Review> reviews = book.Reviews.ToList();
 
+                List<ReviewDTO> reviewDTOs = _mapper.Map<List<ReviewDTO>>(reviews);
+
                 List<int> ratings = new List<int>();
 
-                foreach (var item in reviews) 
+                foreach (var item in reviewDTOs) 
                 {
                     ratings.Add(item.Rating);
                 }
