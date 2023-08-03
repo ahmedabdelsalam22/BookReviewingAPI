@@ -121,15 +121,6 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
-        /*
-         * string json = JsonConvert.SerializeObject(author, Formatting.Indented, new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
-         */
-
-        // Country country = JsonConvert.DeserializeObject<Country>(json);
-
         [HttpGet("{countryId}/authors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -161,7 +152,6 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No authors exists with this id");
                 }
-
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
                 _response.Result = authors;
