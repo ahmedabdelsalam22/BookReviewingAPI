@@ -132,10 +132,15 @@ namespace BookReviewingAPI.Controllers
                     return NotFound("No authors found with this id");
                 }
                 List<Book> books = await _bookRepository.GetBooksByAuthorId(authorId);
+                if (books == null) 
+                {
+                    return NotFound();
+                }
+                List<BookDTO> bookDTOs = _mapper.Map<List<BookDTO>>(books);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = books;
+                _response.Result = bookDTOs;
 
                 return _response;
             }

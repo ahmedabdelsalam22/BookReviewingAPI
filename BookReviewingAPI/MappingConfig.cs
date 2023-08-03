@@ -9,6 +9,7 @@ namespace BookReviewingAPI
         public MappingProfile() 
         {
             CreateMap<Author, AuthorDTO>();
+            CreateMap<Book, BookDTO>();
         }
     }
 }
