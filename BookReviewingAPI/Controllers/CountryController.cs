@@ -76,9 +76,10 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No countries exists with this id");
                 }
+                CountryDTO countryDTO = _mapper.Map<CountryDTO>(country);
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = country;
+                _response.Result = countryDTO;
 
                 return _response;
             }
