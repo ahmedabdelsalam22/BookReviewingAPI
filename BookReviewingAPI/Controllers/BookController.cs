@@ -2,11 +2,8 @@
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Runtime.InteropServices;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookReviewingAPI.Controllers
 {
