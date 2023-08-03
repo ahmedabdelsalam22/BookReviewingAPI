@@ -21,6 +21,7 @@ builder.Services.AddScoped<IBookRepository,BookRepository>();
 builder.Services.AddScoped<IAuthorRepository,AuthorRepository>();
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
+builder.Services.AddScoped<IReviewreRepository, ReviewerRepository>();
 
 var app = builder.Build();
 
