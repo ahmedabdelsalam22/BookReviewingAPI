@@ -103,7 +103,7 @@ namespace BookReviewingAPI.Controllers
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = book;
+                _response.Result = bookDTO;
 
                 return _response;
             }
