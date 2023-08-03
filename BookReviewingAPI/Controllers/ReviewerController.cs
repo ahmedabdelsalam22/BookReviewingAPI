@@ -39,7 +39,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound();
                 }
-                List<ReviewDTO> reviewDTOs = _mapper.Map<List<ReviewDTO>>(reviewers);
+                List<ReviewerDTO> reviewDTOs = _mapper.Map<List<ReviewerDTO>>(reviewers);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
