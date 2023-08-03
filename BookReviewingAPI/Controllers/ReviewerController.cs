@@ -71,7 +71,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No reviewers exists with this id");
                 }
-                ReviewDTO reviewDTOs = _mapper.Map<ReviewDTO>(reviewer);
+                ReviewerDTO reviewDTOs = _mapper.Map<ReviewerDTO>(reviewer);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
