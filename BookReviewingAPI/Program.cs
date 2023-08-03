@@ -24,6 +24,8 @@ builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<IReviewerRepository, ReviewerRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 var app = builder.Build();
 
 

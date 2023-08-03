@@ -1,5 +1,7 @@
-﻿using Azure;
+﻿using AutoMapper;
+using Azure;
 using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +16,13 @@ namespace BookReviewingAPI.Controllers
         private readonly IAuthorRepository _authorRepository;
         private readonly IBookRepository _bookRepository;
         private APIResponse _response;
-        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository)
+        private IMapper _mapper;
+        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository, IMapper mapper)
         {
             _authorRepository = repository;
             _response = new APIResponse();
             _bookRepository = bookRepository;
+            _mapper = mapper;
         }
         [HttpGet("allAuthors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -28,9 +32,12 @@ namespace BookReviewingAPI.Controllers
             try
             {
                 IEnumerable<Author> authors = await _authorRepository.GetAllAsync();
+
+                List<AuthorDTO> authorsDTO = _mapper.Map<List<AuthorDTO>>(authors);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = authors;
+                _response.Result = authorsDTO;
                 return _response;
             }
             catch (Exception e)
@@ -57,9 +64,12 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound("No authors exists with this id");
                 }
+
+                AuthorDTO authorDTO = _mapper.Map<AuthorDTO>(author);
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = author;
+                _response.Result = authorDTO;
 
                 return _response;
             }
@@ -87,10 +97,15 @@ namespace BookReviewingAPI.Controllers
                     return NotFound("No books found with this id");
                 }
                 List<Author> authors = _authorRepository.GetAuthorByBookId(bookId);
+                if (authors == null) 
+                {
+                    return NotFound();
+                }
+                List<AuthorDTO> authorDTO = _mapper.Map<List<AuthorDTO>>(authors);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = authors;
+                _response.Result = authorDTO;
 
                 return _response;
             }
@@ -117,10 +132,15 @@ namespace BookReviewingAPI.Controllers
                     return NotFound("No authors found with this id");
                 }
                 List<Book> books = await _bookRepository.GetBooksByAuthorId(authorId);
+                if (books == null) 
+                {
+                    return NotFound();
+                }
+                List<BookDTO> bookDTOs = _mapper.Map<List<BookDTO>>(books);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = books;
+                _response.Result = bookDTOs;
 
                 return _response;
             }

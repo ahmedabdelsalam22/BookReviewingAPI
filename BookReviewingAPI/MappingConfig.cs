@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 
 namespace BookReviewingAPI
 {
@@ -6,7 +8,8 @@ namespace BookReviewingAPI
     {
         public MappingProfile() 
         {
-            //CreateMap<>();
+            CreateMap<Author, AuthorDTO>();
+            CreateMap<Book, BookDTO>();
         }
     }
 }
