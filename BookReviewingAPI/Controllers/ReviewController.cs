@@ -41,5 +41,38 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+
+        [HttpGet("review/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetReviewById(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest();
+                }
+                Review? review = await _reviewRepository.GetAsync(filter: x => x.Id == id, tracked: false);
+                if (review == null)
+                {
+                    return NotFound("No reviews exists with this id");
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = review;
+
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+
+        }
+
     }
 }
