@@ -2,11 +2,8 @@
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Runtime.InteropServices;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookReviewingAPI.Controllers
 {
@@ -103,7 +100,7 @@ namespace BookReviewingAPI.Controllers
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
-                _response.Result = book;
+                _response.Result = bookDTO;
 
                 return _response;
             }
