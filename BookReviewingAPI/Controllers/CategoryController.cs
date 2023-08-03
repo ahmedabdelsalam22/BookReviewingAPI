@@ -103,9 +103,12 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound();
                 }
+                List<CategoryDTO> categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
+
+
                 _apiResponse.StatusCode = HttpStatusCode.OK;
                 _apiResponse.IsSuccess = true;
-                _apiResponse.Result = categories;
+                _apiResponse.Result = categoryDTOs;
                 return _apiResponse;
 
             }
