@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Azure;
 using BookReviewingAPI.Models;
-using BookReviewingAPI.Models.DTOS;
+using BookReviewingAPI.Models.DTOS.Country;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
@@ -112,11 +112,12 @@ namespace BookReviewingAPI.Controllers
                  {
                      return NotFound("No authors exists with this id");
                  }
-                 string json = JsonConvert.SerializeObject(author, Formatting.Indented, new JsonSerializerSettings
-                 {
-                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                 });
-                 Country? country = JsonConvert.DeserializeObject<Country>(json);
+                 //string json = JsonConvert.SerializeObject(author, Formatting.Indented, new JsonSerializerSettings
+                 //{
+                 //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                 //});
+                 //Country? country = JsonConvert.DeserializeObject<Country>(json);
+                Country? country = author.Country;
                  if (country == null)
                  {
                      return NotFound("No countries exists with this id");
@@ -156,13 +157,14 @@ namespace BookReviewingAPI.Controllers
                     return NotFound("No countries exists with this id");
                 }
 
-                string json = JsonConvert.SerializeObject(country, Formatting.Indented, new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+                //string json = JsonConvert.SerializeObject(country, Formatting.Indented, new JsonSerializerSettings
+                //{
+                //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                //});
 
-                List<Author>? authors = JsonConvert.DeserializeObject<List<Author>>(json);
+                //List<Author>? authors = JsonConvert.DeserializeObject<List<Author>>(json);
 
+                List<Author>? authors = country.Authors.ToList();
 
                 if (authors == null)
                 {
@@ -179,6 +181,44 @@ namespace BookReviewingAPI.Controllers
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
                 _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+        }
+
+        [HttpPost("create")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> CreateCountry([FromBody] CountryCreateDTO countryCreateDTO)
+        {
+            try 
+            {
+                if (countryCreateDTO == null)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var country = await _countryRepository.GetAsync(filter: x => x.Name.ToUpper() == countryCreateDTO.Name.ToUpper());
+
+                if (country != null)
+                {
+                    return BadRequest("this country already exists");
+                }
+
+                var countryToDb = _mapper.Map<Country>(countryCreateDTO);
+
+                await _countryRepository.CreateAsync(countryToDb);
+                await _countryRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = countryToDb;
+                return _response;
+            }catch(Exception e) 
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
                 return _response;
             }
         }

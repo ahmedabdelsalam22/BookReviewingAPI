@@ -15,17 +15,20 @@ namespace BookReviewingAPI.Controllers
     {
         private readonly IAuthorRepository _authorRepository;
         private readonly IBookRepository _bookRepository;
+        private readonly ICountryRepository _countryRepository;
         private APIResponse _response;
         private IMapper _mapper;
-        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository, IMapper mapper)
+        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository, IMapper mapper, ICountryRepository countryRepository)
         {
             _authorRepository = repository;
             _response = new APIResponse();
             _bookRepository = bookRepository;
+            _countryRepository = countryRepository;
             _mapper = mapper;
         }
         [HttpGet("allAuthors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<APIResponse> GetAllAuthors()
         {
@@ -51,6 +54,7 @@ namespace BookReviewingAPI.Controllers
         [HttpGet("author/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> GetAuthorById(int id)
         {
             try
@@ -86,6 +90,7 @@ namespace BookReviewingAPI.Controllers
         [HttpGet("{bookId}/authors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> GetAuthorByBookId(int bookId) 
         {
             try
@@ -120,6 +125,7 @@ namespace BookReviewingAPI.Controllers
 
         [HttpGet("{authorId}/books")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetBooksByAuthorId(int authorId) 
         {
@@ -152,5 +158,39 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+
+        //[HttpPost("authors/create")]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //public async Task<ActionResult> CreateAuthor([FromBody] AuthorCreateDTO authorCreateDTO) 
+        //{
+        //    if (authorCreateDTO == null)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    var country = await _countryRepository.GetAsync(x=>x.Id == authorCreateDTO.Country.Id);
+
+        //    if (country == null)
+        //    {
+        //        ModelState.AddModelError("", "Country doesn't exist!");
+        //        return StatusCode(404, ModelState);
+        //    }
+
+        //    authorCreateDTO.Country =await _countryRepository.GetAsync(x => x.Id == authorCreateDTO.Country.Id);
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    Author author = _mapper.Map<Author>(authorCreateDTO);
+
+        //    await _authorRepository.CreateAsync(author);
+        //    await _authorRepository.SaveChanges();
+
+        //    return Ok();
+        //}
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
+using BookReviewingAPI.Models.DTOS.Country;
 
 namespace BookReviewingAPI
 {
@@ -14,6 +15,7 @@ namespace BookReviewingAPI
             CreateMap<Category, CategoryDTO>();
             CreateMap<Country, CountryDTO>();
             CreateMap<Reviewer, ReviewerDTO>();
+            CreateMap<CountryCreateDTO, Country>();
         }
     }
 }

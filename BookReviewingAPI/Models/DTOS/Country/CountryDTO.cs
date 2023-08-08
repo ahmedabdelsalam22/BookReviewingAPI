@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BookReviewingAPI.Models.DTOS
+namespace BookReviewingAPI.Models.DTOS.Country
 {
     public class CountryDTO
     {
