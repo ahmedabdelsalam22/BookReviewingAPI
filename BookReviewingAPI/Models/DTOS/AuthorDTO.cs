@@ -8,7 +8,6 @@ namespace BookReviewingAPI.Models.DTOS
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        //public virtual ICollection<BookAuthor> BookAuthors { get; set; }
-        //public Country Country { get; set; }
+
     }
 }

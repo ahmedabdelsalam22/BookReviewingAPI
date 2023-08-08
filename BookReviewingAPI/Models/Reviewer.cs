@@ -14,6 +14,6 @@ namespace BookReviewingAPI.Models
         [Required]
         [MaxLength(200, ErrorMessage = "Last Name must be up to 200 characters in length")]
         public string LastName { get; set; }
-        public ICollection<Review> Reviews { get; set; }
+        public virtual ICollection<Review> Reviews { get; set; }
     }
 }

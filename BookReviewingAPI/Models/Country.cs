@@ -11,6 +11,6 @@ namespace BookReviewingAPI.Models
         [Required]
         [MaxLength(50,ErrorMessage ="Country name can't be more than 50 characters")]
         public string Name { get; set; }
-        public ICollection<Author> Authors { get; set; }
+        public virtual ICollection<Author> Authors { get; set; }
     }
 }
