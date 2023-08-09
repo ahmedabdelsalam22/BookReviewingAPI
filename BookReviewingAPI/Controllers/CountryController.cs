@@ -6,6 +6,7 @@ using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Newtonsoft.Json;
 using System.Diagnostics.Metrics;
 using System.Net;
@@ -15,7 +16,7 @@ using Formatting = Newtonsoft.Json.Formatting;
 
 namespace BookReviewingAPI.Controllers
 {
-    [Route("api/[Controller]/")]
+    [Route("api/")]
     [ApiController]
     public class CountryController : ControllerBase
     {
@@ -222,5 +223,53 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+
+        [HttpPut("country/{countryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> UpdateCountry([FromBody] CountryDTO countryDTO , int countryId)
+        {
+            try
+            {
+                if (countryDTO == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (countryId != countryDTO.Id)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                Country country = await _countryRepository.GetAsync(filter: x => x.Id == countryId,tracked:false);
+                if (country == null)
+                {
+                    return NotFound(ModelState);
+                }
+                if (country.Name == countryDTO.Name)
+                {
+                    return BadRequest("sorry! its the same name .. please update it");
+                }
+
+                Country countryToDB = _mapper.Map<Country>(countryDTO);
+
+                _countryRepository.Update(countryToDB);
+                await _countryRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = countryDTO;
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.NotModified;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+
+        }
     }
+
 }
