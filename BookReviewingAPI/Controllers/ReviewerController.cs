@@ -215,5 +215,49 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpPut("reviewer/reviewerId")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        public async Task<ActionResult<APIResponse>> UpdateReviewer([FromBody] ReviewerDTO reviewerDTO, int reviewerId)
+        {
+            try
+            {
+                if (reviewerDTO == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (reviewerId != reviewerDTO.Id)
+                {
+                    return BadRequest(ModelState);
+                }
+                Reviewer reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, tracked: false);
+                if (reviewer == null)
+                {
+                    return NotFound("no reviewer exists with this id");
+                }
+
+                Reviewer reviewerToDB = _mapper.Map<Reviewer>(reviewerDTO);
+
+                _reviewerRepository.Update(reviewerToDB);
+                await _reviewerRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = reviewerToDB;
+                return _response;
+
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
+                return _response;
+            }
+        }
     }
 }
