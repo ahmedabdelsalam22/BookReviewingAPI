@@ -184,5 +184,36 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpPost("reviewer/create")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> CreateReviewer(Reviewer reviewer)
+        {
+            try
+            {
+                if (reviewer == null)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _reviewerRepository.CreateAsync(reviewer);
+                await _reviewerRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = reviewer;
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
+                return _response;
+            }
+
+        }
     }
 }
