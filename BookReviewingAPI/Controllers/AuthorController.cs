@@ -198,7 +198,7 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
-        [HttpPost("authors/{authorId}")]
+        [HttpPut("authors/{authorId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -214,7 +214,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                Author author = await _authorRepository.GetAsync(filter: x => x.Id == authorId);
+                Author author = await _authorRepository.GetAsync(filter: x => x.Id == authorId,tracked:false);
                 if (author == null)
                 {
                     return NotFound("No author exists with this id");
