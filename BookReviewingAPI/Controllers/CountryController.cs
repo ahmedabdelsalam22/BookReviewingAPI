@@ -32,7 +32,7 @@ namespace BookReviewingAPI.Controllers
             _authorRepository = authorRepository;
             _mapper = mapper;
         }
-        [HttpGet("allCountries")]
+        [HttpGet("country/allCountries")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
