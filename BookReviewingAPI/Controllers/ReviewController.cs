@@ -106,18 +106,18 @@ namespace BookReviewingAPI.Controllers
                 {
                     return NotFound();
                 }
-                string json = JsonConvert.SerializeObject(book, Formatting.Indented, new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+                //string json = JsonConvert.SerializeObject(book, Formatting.Indented, new JsonSerializerSettings
+                //{
+                //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                //});
 
-                var bookJson = JsonConvert.DeserializeObject<Book>(json);
-                if (bookJson == null)
-                {
-                    return NotFound();
-                }
+                //var bookJson = JsonConvert.DeserializeObject<Book>(json);
+                //if (bookJson == null)
+                //{
+                //    return NotFound();
+                //}
 
-                List<Review> reviews = bookJson.Reviews.ToList();
+                List<Review> reviews = book.Reviews.ToList();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;

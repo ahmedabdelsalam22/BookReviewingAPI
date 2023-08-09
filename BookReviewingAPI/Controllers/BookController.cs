@@ -12,13 +12,15 @@ namespace BookReviewingAPI.Controllers
     public class BookController : ControllerBase
     {
         private readonly IBookRepository _bookRepository;
+        private readonly IReviewRepository _reviewRepository;
         private APIResponse _response;
         private IMapper _mapper;
-        public BookController(IBookRepository repository, IMapper mapper)
+        public BookController(IBookRepository repository, IMapper mapper , IReviewRepository reviewRepository)
         {
             _bookRepository = repository;
             _response = new APIResponse();
             _mapper = mapper;
+            _reviewRepository = reviewRepository;
         }
 
         [HttpGet("allBooks")]
@@ -235,6 +237,45 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+
+        [HttpDelete("book/{bookId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<APIResponse>> DeleteBook(int bookId)
+        {
+            try
+            {
+                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId, includeProperties: "Reviews");
+                if (book == null)
+                {
+                    return NotFound("No book found with this id");
+                }
+                // get all reviews for this book to deleted with book
+                List<Review> reviews = book.Reviews.ToList();
+
+                _reviewRepository.DeleteReviews(reviews);
+                await _reviewRepository.SaveChanges();
+
+                _bookRepository.Delete(book);
+                await _bookRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                return _response;
+
+            }
+            catch (Exception e) 
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
+                return _response;
+            }
+
+        }
+
     }
 
 }
