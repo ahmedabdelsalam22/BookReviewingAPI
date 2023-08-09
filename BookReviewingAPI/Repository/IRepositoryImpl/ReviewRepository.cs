@@ -11,6 +11,12 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         {
             _db = db;
         }
+
+        public void DeleteReviews(List<Review> reviews)
+        {
+            _db.Reviews.RemoveRange(reviews);
+        }
+
         public void Update(Review review)
         {
             _db.Reviews.Update(review);
