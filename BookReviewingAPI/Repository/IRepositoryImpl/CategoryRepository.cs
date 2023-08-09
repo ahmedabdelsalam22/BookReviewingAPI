@@ -19,7 +19,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             return categories;
         }
 
-        public void UpdateAsync(Category category)
+        public void Update(Category category)
         {
             _db.Categories.Update(category);
         }
