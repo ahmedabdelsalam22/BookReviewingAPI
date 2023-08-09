@@ -16,7 +16,6 @@ namespace BookReviewingAPI.Models
         [StringLength(10, MinimumLength = 3, ErrorMessage = "ISBN must be between 3 and 10 characters")]
         public string Isbn { get; set; }
         public DateTime? DatePublished { get; set; }
-        public virtual ICollection<Review> Reviews { get; set; }
         [JsonIgnore]
         public virtual ICollection<BookCategory> BookCategories { get; set; }
         [JsonIgnore]
