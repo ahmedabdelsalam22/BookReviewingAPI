@@ -278,5 +278,36 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpDelete("review/{reviewId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> DeleteReview(int reviewId)
+        {
+            try
+            {
+                Review review = await _reviewRepository.GetAsync(filter: x => x.Id == reviewId);
+                if (review == null)
+                {
+                    return NotFound("review does't exists");
+                }
+                _reviewRepository.Delete(review);
+                await _reviewRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = "review removed successfully";
+                return _response;
+            }
+            catch (Exception e) 
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                return _response;
+            }
+
+        }
     }
 }
