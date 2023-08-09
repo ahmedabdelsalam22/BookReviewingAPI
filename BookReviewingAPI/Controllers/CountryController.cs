@@ -289,6 +289,7 @@ namespace BookReviewingAPI.Controllers
                 if (authors.Count() > 0)
                 {
                     ModelState.AddModelError("", $"Country {country.Name}cannot be deleted because it is used by at least one author");
+                    return StatusCode(409, ModelState);
                 }
 
                 _countryRepository.Delete(country);
