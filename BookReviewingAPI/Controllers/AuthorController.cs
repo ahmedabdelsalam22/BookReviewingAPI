@@ -182,11 +182,6 @@ namespace BookReviewingAPI.Controllers
 
                 authorToCreate.Country = country;
 
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
                 await _authorRepository.CreateAsync(authorToCreate);
                 await _authorRepository.SaveChanges();
 
