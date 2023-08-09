@@ -226,5 +226,57 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpPut("review/{reviewId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> UpdateReview(int reviewId, [FromBody] Review reviewToUpdate)
+        {
+            try
+            {
+                if (reviewToUpdate == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (reviewId != reviewToUpdate.Id)
+                {
+                    return BadRequest(ModelState);
+                }
+                Review review = await _reviewRepository.GetAsync(filter: x => x.Id == reviewId, tracked: false);
+                if (review == null)
+                {
+                    return NotFound("No review exists with this id");
+                }
+                Book book = await _bookRepository.GetAsync(filter: x => x.Id == reviewToUpdate.Book.Id);
+                if (book == null)
+                {
+                    return NotFound("No book exists with this id");
+                }
+                Reviewer reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewToUpdate.Reviewer.Id);
+                if (book == null)
+                {
+                    return NotFound("No reviewer exists with this id");
+                }
+                reviewToUpdate.Book = book;
+                reviewToUpdate.Reviewer = reviewer;
+
+                _reviewRepository.Update(reviewToUpdate);
+                await _reviewRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.IsSuccess = true;
+                _response.Result = reviewToUpdate;
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                return _response;
+            }
+
+        }
     }
 }
