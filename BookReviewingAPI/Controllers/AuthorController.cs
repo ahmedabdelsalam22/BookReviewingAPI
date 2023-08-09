@@ -5,6 +5,7 @@ using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net;
 
 namespace BookReviewingAPI.Controllers
@@ -242,6 +243,45 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
 
+        }
+
+        [HttpDelete("author/{authorId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<APIResponse>> DeleteAuthor(int authorId)
+        {
+            try
+            {
+                Author author = await _authorRepository.GetAsync(filter: x => x.Id == authorId);
+                if (author == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                // related entities
+                List<Book> books = await _bookRepository.GetBooksByAuthorId(authorId);
+                if (books.Count() > 0)
+                {
+                    ModelState.AddModelError(
+                        "CustomError",
+                        $"Author {author.FirstName} {author.LastName} cannot be deleted because it is associated with at least one book"
+                        );
+                    return StatusCode(409, ModelState);
+                }
+
+                _authorRepository.Delete(author);
+
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.IsSuccess = true;
+                return _response;
+            }
+            catch (Exception e) 
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                return _response;
+            }
         }
     }
 }
