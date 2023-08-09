@@ -5,7 +5,7 @@ namespace BookReviewingAPI.Repository.IRepository
 {
     public interface IBookRepository : IRepository<Book>
     {
-        void UpdateAsync(Book book);
+        void Update(Book book);
         public Task<List<Book>> GetBooksByAuthorId(int authorId);
         public Task<List<Book>> GetBooksByCategoryId(int categoryId);
 

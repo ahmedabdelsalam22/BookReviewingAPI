@@ -13,7 +13,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         {
             _db = db;
         }
-        public void UpdateAsync(Book book)
+        public void Update(Book book)
         {
             _db.Books.Update(book);
         }

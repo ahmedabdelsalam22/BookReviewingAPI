@@ -9,7 +9,7 @@ namespace BookReviewingAPI
         public MappingProfile() 
         {
             CreateMap<Author, AuthorDTO>();
-            CreateMap<Book, BookDTO>();
+            CreateMap<Book, BookDTO>().ReverseMap();
             CreateMap<Review, ReviewDTO>();
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Country, CountryDTO>().ReverseMap();
