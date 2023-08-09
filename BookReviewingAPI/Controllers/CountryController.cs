@@ -270,6 +270,43 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpDelete("country/{countryId}")]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse>> DeleteCountry(int countryId)
+        {
+            try
+            {
+                Country country = await _countryRepository.GetAsync(filter: x => x.Id == countryId, includeProperties: "Authors");
+                if (country == null)
+                {
+                    return NotFound("country does't exists");
+                }
+                // all authors by countryId
+                List<Author> authors = country.Authors.ToList();
+                if (authors.Count() > 0)
+                {
+                    ModelState.AddModelError("", $"Country {country.Name}cannot be deleted because it is used by at least one author");
+                }
+
+                _countryRepository.Delete(country);
+                await _countryRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                return _response;
+            }
+            catch (Exception e) 
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+
+        }
     }
 
 }

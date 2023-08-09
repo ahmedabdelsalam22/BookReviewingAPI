@@ -259,6 +259,7 @@ namespace BookReviewingAPI.Controllers
                 if (books.Count() > 0)
                 {
                     ModelState.AddModelError("", $"Category {category.Name} cannot be deleted because it is used by at least one book");
+                    return StatusCode(409,ModelState);
                 }
                 _categoryRepository.Delete(category);
                 await _categoryRepository.SaveChanges();
