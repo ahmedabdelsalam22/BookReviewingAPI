@@ -241,5 +241,40 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpDelete("category/{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> DeleteCategory(int categoryId)
+        {
+            try
+            {
+                Category category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId);
+                if (category == null)
+                {
+                    return NotFound("category does't exists");
+                }
+                List<Book> books = await _bookRepository.GetBooksByCategoryId(categoryId);
+                if (books.Count() > 0)
+                {
+                    ModelState.AddModelError("", $"Category {category.Name} cannot be deleted because it is used by at least one book");
+                }
+                _categoryRepository.Delete(category);
+                await _categoryRepository.SaveChanges();
+
+                _apiResponse.StatusCode = HttpStatusCode.OK;
+                _apiResponse.IsSuccess = true;
+                return _apiResponse;
+            }
+            catch (Exception e) 
+            {
+                _apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                _apiResponse.IsSuccess = false;
+                _apiResponse.ErrorMessage = new List<string> { e.ToString() };
+                return _apiResponse;
+            }
+
+        }
     }
 }
