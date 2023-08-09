@@ -1,5 +1,6 @@
 ﻿using BookReviewingAPI.Data;
 using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 
 namespace BookReviewingAPI.Repository.IRepositoryImpl
@@ -11,9 +12,11 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         {
             _db = db;
         }
-        public void UpdateAsync(Country country)
+
+        public void Update(Country country)
         {
             _db.Countries.Update(country);
         }
+       
     }
 }
