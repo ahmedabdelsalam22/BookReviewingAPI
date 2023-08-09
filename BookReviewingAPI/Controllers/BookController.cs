@@ -11,12 +11,12 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        private readonly IBookRepository _repository;
+        private readonly IBookRepository _bookRepository;
         private APIResponse _response;
         private IMapper _mapper;
         public BookController(IBookRepository repository, IMapper mapper)
         {
-            _repository = repository;
+            _bookRepository = repository;
             _response = new APIResponse();
             _mapper = mapper;
         }
@@ -29,7 +29,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                IEnumerable<Book> books = await _repository.GetAllAsync();
+                IEnumerable<Book> books = await _bookRepository.GetAllAsync();
                 if (books == null) 
                 {
                     return NotFound();
@@ -61,7 +61,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Book? book = await _repository.GetAsync(filter: x => x.Id == bookId, tracked: false);
+                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false);
                 if (book == null) 
                 {
                     return NotFound("No books exists with this id");
@@ -92,7 +92,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Book? book = await _repository.GetAsync(filter: x => x.Isbn == isbn, tracked: false);
+                Book? book = await _bookRepository.GetAsync(filter: x => x.Isbn == isbn, tracked: false);
                 if (book == null)
                 {
                     return NotFound("No books exists with this isbn");
@@ -122,7 +122,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Book? book = await _repository.GetAsync(filter: x => x.Id == bookId, tracked: false,includeProperties: "Reviews");
+                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false,includeProperties: "Reviews");
 
                 if (book == null)
                 {
@@ -167,15 +167,15 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var book = await _repository.GetAsync(filter: x => x.Title.ToLower() == bookCreateDTO.Title.ToLower());
+                var book = await _bookRepository.GetAsync(filter: x => x.Title.ToLower() == bookCreateDTO.Title.ToLower());
                 if (book != null)
                 {
                     return BadRequest("this book already exists");
                 }
 
                 Book bookToDB = _mapper.Map<Book>(bookCreateDTO);
-                await _repository.CreateAsync(bookToDB);
-                await _repository.SaveChanges();
+                await _bookRepository.CreateAsync(bookToDB);
+                await _bookRepository.SaveChanges();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
@@ -191,6 +191,49 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
 
+        }
+
+        [HttpPut("book/bookId")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        public async Task<ActionResult<APIResponse>> UpdateBook([FromBody] BookDTO bookDTO,int bookId)
+        {
+            try 
+            {
+                if (bookDTO == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (bookId != bookDTO.Id)
+                {
+                    return BadRequest(ModelState);
+                }
+                Book book = await _bookRepository.GetAsync(filter: x => x.Id == bookId,tracked:false);
+                if (book == null)
+                {
+                    return NotFound("no book exists with this id");
+                }
+
+                Book bookToDB = _mapper.Map<Book>(bookDTO);
+
+                _bookRepository.Update(bookToDB);
+                await _bookRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = bookToDB;
+                return _response;
+
+            }catch(Exception e) 
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
+                return _response;
+            }
         }
     }
 
