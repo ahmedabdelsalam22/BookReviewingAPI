@@ -6,6 +6,7 @@ using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Diagnostics.Metrics;
 using System.Net;
 
 namespace BookReviewingAPI.Controllers
@@ -251,6 +252,35 @@ namespace BookReviewingAPI.Controllers
 
             }
             catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
+                return _response;
+            }
+        }
+
+        [HttpDelete("reviewer/{reviewerId}")]
+        public async Task<ActionResult<APIResponse>> DeleteReviewer(int reviewerId) 
+        {
+            try
+            {
+                Reviewer reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, includeProperties: "Reviews");
+                if (reviewer == null)
+                {
+                    return NotFound("reviewer does't exists");
+                }
+                List<Review>? reviews = reviewer.Reviews.ToList();
+                _reviewRepository.DeleteReviews(reviews);
+                await _reviewRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = "reviewer removed successfully";
+                return _response;
+            }
+            catch (Exception e) 
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessage = new List<string>() { e.ToString() };
