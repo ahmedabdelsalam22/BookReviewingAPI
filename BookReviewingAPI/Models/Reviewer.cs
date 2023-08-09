@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using JsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
+
 
 namespace BookReviewingAPI.Models
 {
@@ -16,6 +18,6 @@ namespace BookReviewingAPI.Models
         [MaxLength(200, ErrorMessage = "Last Name must be up to 200 characters in length")]
         public string LastName { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Review> Reviews { get; set; }
+        public virtual ICollection<Review>? Reviews { get; set; }
     }
 }

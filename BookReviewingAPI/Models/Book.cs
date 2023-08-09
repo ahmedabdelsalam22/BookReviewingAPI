@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using JsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
 
 namespace BookReviewingAPI.Models
 {
@@ -17,8 +18,10 @@ namespace BookReviewingAPI.Models
         public string Isbn { get; set; }
         public DateTime? DatePublished { get; set; }
         [JsonIgnore]
-        public virtual ICollection<BookCategory> BookCategories { get; set; }
+        public virtual ICollection<Review>? Reviews { get; set; }
         [JsonIgnore]
-        public virtual ICollection<BookAuthor> BookAuthors { get; set; }
+        public virtual ICollection<BookCategory>? BookCategories { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<BookAuthor>? BookAuthors { get; set; }
     }
 }
