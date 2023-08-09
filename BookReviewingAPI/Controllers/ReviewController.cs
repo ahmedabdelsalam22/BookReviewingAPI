@@ -16,14 +16,16 @@ namespace BookReviewingAPI.Controllers
     {
         private readonly IReviewRepository _reviewRepository;
         private readonly IBookRepository _bookRepository;
+        private readonly IReviewerRepository _reviewerRepository;
         private APIResponse _response;
         private IMapper _mapper;
-        public ReviewController(IReviewRepository reviewRepository, IBookRepository bookRepository,IMapper mapper)
+        public ReviewController(IReviewRepository reviewRepository, IBookRepository bookRepository,IMapper mapper, IReviewerRepository reviewerRepository)
         {
             _reviewRepository = reviewRepository;
             _response = new APIResponse();
             _bookRepository = bookRepository;
             _mapper = mapper;
+            _reviewerRepository = reviewerRepository;
         }
 
         [HttpGet("allReviews")]
@@ -176,6 +178,52 @@ namespace BookReviewingAPI.Controllers
                 _response.ErrorMessage = new List<string> { e.ToString() };
                 return _response;
             }
+        }
+
+        [HttpPost("review/create")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> CreateReview([FromBody] Review reviewToCreate)
+        {
+            try 
+            {
+                if (reviewToCreate == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                // related entities 
+                var book = await _bookRepository.GetAsync(filter: x => x.Id == reviewToCreate.Book.Id);
+                var reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewToCreate.Reviewer.Id);
+                // check is related entities(Parent tables) is found or not..
+                if (book == null)
+                {
+                    return BadRequest("book is't exists");
+                }
+                if (reviewer == null)
+                {
+                    return BadRequest("book is't exists");
+                }
+
+                reviewToCreate.Book = book;
+                reviewToCreate.Reviewer = reviewer;
+
+                await _reviewRepository.CreateAsync(reviewToCreate);
+                await _reviewRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = reviewToCreate;
+                return _response;
+            }
+            catch(Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
+                return _response;
+            }
+
         }
     }
 }
