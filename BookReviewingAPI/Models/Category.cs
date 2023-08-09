@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookReviewingAPI.Models
@@ -11,6 +12,7 @@ namespace BookReviewingAPI.Models
         [Required]
         [MaxLength(50,ErrorMessage ="Category name can't be more than 100 characters")]
         public string Name { get; set; }
-        public virtual ICollection<BookCategory> BookCategories { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<BookCategory>? BookCategories { get; set; }
     }
 }

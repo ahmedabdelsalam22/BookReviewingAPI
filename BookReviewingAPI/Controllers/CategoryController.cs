@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Azure;
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
+using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -190,6 +192,54 @@ namespace BookReviewingAPI.Controllers
                 _apiResponse.ErrorMessage = new List<string>() { e.ToString() };
                 return _apiResponse;
             }
+
+        }
+
+        [HttpPut("category/{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> UpdateCategory([FromBody] CategoryDTO categoryDTO, int categoryId)
+        {
+            try
+            {
+                if (categoryDTO == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (categoryId != categoryDTO.Id)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                Category category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
+                if (category == null)
+                {
+                    return NotFound(ModelState);
+                }
+                if (category.Name == categoryDTO.Name)
+                {
+                    return BadRequest("sorry! its the same name .. please update it");
+                }
+
+                Category categoryToDB = _mapper.Map<Category>(categoryDTO);
+
+                _categoryRepository.Update(categoryToDB);
+                await _categoryRepository.SaveChanges();
+
+                _apiResponse.StatusCode = HttpStatusCode.OK;
+                _apiResponse.IsSuccess = true;
+                _apiResponse.Result = categoryToDB;
+                return _apiResponse;
+            }
+            catch (Exception e)
+            {
+                _apiResponse.StatusCode = HttpStatusCode.NotModified;
+                _apiResponse.IsSuccess = false;
+                _apiResponse.ErrorMessage = new List<string> { e.ToString() };
+                return _apiResponse;
+            }
+
         }
     }
 }
