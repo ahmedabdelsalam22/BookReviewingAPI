@@ -19,7 +19,11 @@ namespace BookReviewingAPI.Models
         [Required]
         [Range(1,5,ErrorMessage ="Rating must be between 1 and 5 stars")]
         public int Rating { get; set; }
+
+        //public int BookId { get; set; } // foreignKey
         public virtual Book Book { get; set; }
+
+        //public int ReviewerId { get; set; } // foreignKey
         public virtual Reviewer Reviewer { get; set; }
     }
 }

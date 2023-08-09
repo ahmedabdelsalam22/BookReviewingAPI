@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BookReviewingAPI.Models
 {
@@ -14,7 +15,9 @@ namespace BookReviewingAPI.Models
         [Required]
         [MaxLength(200, ErrorMessage = "First Name cannot be more than 100 characters")]
         public string LastName { get; set; }
+        // public int CountryId {get; set;} //foreing key
         public virtual Country Country { get; set; }
+        [JsonIgnore]
         public virtual ICollection<BookAuthor> BookAuthors { get; set; }
     }
 }

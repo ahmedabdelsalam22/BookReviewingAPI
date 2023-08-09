@@ -154,5 +154,42 @@ namespace BookReviewingAPI.Controllers
                 return _apiResponse;
             }
         }
+
+        [HttpPost("category/create")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> CreateCategory([FromBody] CategoryDTO categoryDTO)
+        {
+            try
+            {
+                if (categoryDTO == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                var category = await _categoryRepository.GetAsync(filter: x => x.Name.ToLower() == categoryDTO.Name.ToLower());
+                if (category != null)
+                {
+                    return BadRequest("this category already exists");
+                }
+
+                Category categoryToDB = _mapper.Map<Category>(categoryDTO);
+
+                await _categoryRepository.CreateAsync(categoryToDB);
+                await _categoryRepository.SaveChanges();
+
+                _apiResponse.StatusCode = HttpStatusCode.OK;
+                _apiResponse.IsSuccess = true;
+                _apiResponse.Result = categoryToDB;
+                return _apiResponse;
+            }
+            catch (Exception e) 
+            {
+                _apiResponse.IsSuccess = false;
+                _apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                _apiResponse.ErrorMessage = new List<string>() { e.ToString() };
+                return _apiResponse;
+            }
+        }
     }
 }
