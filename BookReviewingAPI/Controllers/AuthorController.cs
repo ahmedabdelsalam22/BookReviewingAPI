@@ -180,12 +180,7 @@ namespace BookReviewingAPI.Controllers
 
         //    authorCreateDTO.Country =await _countryRepository.GetAsync(x => x.Id == authorCreateDTO.Country.Id);
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
 
-        //    Author author = _mapper.Map<Author>(authorCreateDTO);
 
         //    await _authorRepository.CreateAsync(author);
         //    await _authorRepository.SaveChanges();
