@@ -47,7 +47,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.Book", b =>
@@ -73,7 +73,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.BookAuthor", b =>
@@ -88,7 +88,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("BookAuthors");
+                    b.ToTable("BookAuthors", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.BookCategory", b =>
@@ -103,7 +103,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("BookCategories");
+                    b.ToTable("BookCategories", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.Category", b =>
@@ -121,7 +121,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.Country", b =>
@@ -139,7 +139,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.Review", b =>
@@ -175,7 +175,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasIndex("ReviewerId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.Reviewer", b =>
@@ -198,7 +198,7 @@ namespace BookReviewingAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reviewers");
+                    b.ToTable("Reviewers", (string)null);
                 });
 
             modelBuilder.Entity("BookReviewingAPI.Models.Author", b =>

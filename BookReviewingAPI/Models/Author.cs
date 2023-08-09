@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+using JsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
 
 namespace BookReviewingAPI.Models
 {
@@ -18,6 +18,6 @@ namespace BookReviewingAPI.Models
         // public int CountryId {get; set;} //foreing key
         public virtual Country Country { get; set; }
         [JsonIgnore]
-        public virtual ICollection<BookAuthor> BookAuthors { get; set; }
+        public virtual ICollection<BookAuthor>? BookAuthors { get; set; }
     }
 }

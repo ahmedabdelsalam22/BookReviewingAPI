@@ -192,8 +192,8 @@ namespace BookReviewingAPI.Controllers
                     return BadRequest(ModelState);
                 }
                 // related entities 
-                var book = await _bookRepository.GetAsync(filter: x => x.Id == reviewToCreate.Book.Id);
-                var reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewToCreate.Reviewer.Id);
+                Book book = await _bookRepository.GetAsync(filter: x => x.Id == reviewToCreate.Book.Id);
+                Reviewer reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewToCreate.Reviewer.Id);
                 // check is related entities(Parent tables) is found or not..
                 if (book == null)
                 {
@@ -206,6 +206,7 @@ namespace BookReviewingAPI.Controllers
 
                 reviewToCreate.Book = book;
                 reviewToCreate.Reviewer = reviewer;
+
 
                 await _reviewRepository.CreateAsync(reviewToCreate);
                 await _reviewRepository.SaveChanges();
