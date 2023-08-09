@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Azure;
 using BookReviewingAPI.Models;
-using BookReviewingAPI.Models.DTOS.Country;
+using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;

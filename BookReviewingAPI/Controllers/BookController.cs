@@ -87,6 +87,7 @@ namespace BookReviewingAPI.Controllers
         [HttpGet("book/isbn/{isbn}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> GetBookByISBN(string isbn)
         {
             try
@@ -154,5 +155,43 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
+
+        [HttpPost("book/create")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> CreateBook(BookCreateDTO bookCreateDTO)
+        {
+            try
+            {
+                if (bookCreateDTO == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                var book = await _repository.GetAsync(filter: x => x.Title.ToLower() == bookCreateDTO.Title.ToLower());
+                if (book != null)
+                {
+                    return BadRequest("this book already exists");
+                }
+
+                Book bookToDB = _mapper.Map<Book>(bookCreateDTO);
+                await _repository.CreateAsync(bookToDB);
+                await _repository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = bookToDB;
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                _response.IsSuccess = false;
+
+                return _response;
+            }
+
+        }
     }
+
 }

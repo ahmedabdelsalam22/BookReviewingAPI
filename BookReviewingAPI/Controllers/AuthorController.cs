@@ -159,33 +159,49 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
-        //[HttpPost("authors/create")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public async Task<ActionResult> CreateAuthor([FromBody] AuthorCreateDTO authorCreateDTO) 
-        //{
-        //    if (authorCreateDTO == null)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+        [HttpPost("authors/create")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> CreateAuthor([FromBody] Author authorToCreate)
+        {
+            try 
+            {
+                if (authorToCreate == null)
+                {
+                    return BadRequest(ModelState);
+                }
 
-        //    var country = await _countryRepository.GetAsync(x=>x.Id == authorCreateDTO.Country.Id);
+                var country = await _countryRepository.GetAsync(filter:x => x.Id == authorToCreate.Country.Id);
 
-        //    if (country == null)
-        //    {
-        //        ModelState.AddModelError("", "Country doesn't exist!");
-        //        return StatusCode(404, ModelState);
-        //    }
+                if (country == null)
+                {
+                    ModelState.AddModelError("", "Country doesn't exist!");
+                    return StatusCode(404, ModelState);
+                }
 
-        //    authorCreateDTO.Country =await _countryRepository.GetAsync(x => x.Id == authorCreateDTO.Country.Id);
+                authorToCreate.Country = country;
 
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
+                await _authorRepository.CreateAsync(authorToCreate);
+                await _authorRepository.SaveChanges();
 
-        //    await _authorRepository.CreateAsync(author);
-        //    await _authorRepository.SaveChanges();
-
-        //    return Ok();
-        //}
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.IsSuccess = true;
+                _response.Result = authorToCreate;
+                return _response;
+            }
+            catch (Exception e) 
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() {e.ToString() };
+                return _response;
+            }
+        }
     }
 }

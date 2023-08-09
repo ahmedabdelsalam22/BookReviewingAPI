@@ -1,4 +1,4 @@
-﻿namespace BookReviewingAPI.Models.DTOS.Country
+﻿namespace BookReviewingAPI.Models.DTOS
 {
     public class CountryCreateDTO
     {
