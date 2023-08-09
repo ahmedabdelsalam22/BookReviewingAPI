@@ -13,7 +13,7 @@ namespace BookReviewingAPI
             CreateMap<Review, ReviewDTO>();
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Country, CountryDTO>().ReverseMap();
-            CreateMap<Reviewer, ReviewerDTO>();
+            CreateMap<Reviewer, ReviewerDTO>().ReverseMap();
             CreateMap<CountryCreateDTO, Country>().ReverseMap();
             CreateMap<AuthorCreateDTO, Author>();
             CreateMap<BookCreateDTO,Book>();
