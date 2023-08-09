@@ -256,7 +256,7 @@ namespace BookReviewingAPI.Controllers
                 Author author = await _authorRepository.GetAsync(filter: x => x.Id == authorId);
                 if (author == null)
                 {
-                    return BadRequest(ModelState);
+                    return NotFound("no authors found with this id");
                 }
                 // related entities
                 List<Book> books = await _bookRepository.GetBooksByAuthorId(authorId);
@@ -270,9 +270,11 @@ namespace BookReviewingAPI.Controllers
                 }
 
                 _authorRepository.Delete(author);
+                await _authorRepository.SaveChanges();
 
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.IsSuccess = true;
+                _response.Result = "author deleted successfuly";
                 return _response;
             }
             catch (Exception e) 
