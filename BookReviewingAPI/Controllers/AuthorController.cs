@@ -198,5 +198,50 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+        [HttpPost("authors/{authorId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> UpdateAuthor(int authorId, [FromBody] Author authorToUpdate)
+        {
+            try
+            {
+                if (authorToUpdate == null)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (authorId != authorToUpdate.Id)
+                {
+                    return BadRequest(ModelState);
+                }
+                Author author = await _authorRepository.GetAsync(filter: x => x.Id == authorId);
+                if (author == null)
+                {
+                    return NotFound("No author exists with this id");
+                }
+                Country country = await _countryRepository.GetAsync(filter: x => x.Id == authorToUpdate.Country.Id);
+                if (country == null)
+                {
+                    return NotFound("No country exists with this id");
+                }
+                authorToUpdate.Country = country;
+
+                _authorRepository.UpdateAsync(authorToUpdate);
+                await _authorRepository.SaveChanges();
+
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.IsSuccess = true;
+                _response.Result = authorToUpdate;
+                return _response;
+            }
+            catch (Exception e) 
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessage = new List<string>() { e.ToString() };
+                return _response;
+            }
+
+        }
     }
 }
