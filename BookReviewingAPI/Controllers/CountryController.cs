@@ -5,6 +5,7 @@ using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using BookReviewingAPI.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -31,6 +32,8 @@ namespace BookReviewingAPI.Controllers
             _response = new APIResponse();
             _mapper = mapper;
         }
+
+        [Authorize]
         [HttpGet("country/allCountries")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -59,6 +62,8 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+
+        [Authorize]
         [HttpGet("country/{countryId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -92,7 +97,8 @@ namespace BookReviewingAPI.Controllers
             }
 
         }
-      
+
+        [Authorize]
         [HttpGet("{authorId}/country")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -137,6 +143,7 @@ namespace BookReviewingAPI.Controllers
              }
          }
 
+        [Authorize]
         [HttpGet("{countryId}/authors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -185,6 +192,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize(Roles ="admin")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -223,6 +231,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("country/{countryId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -270,6 +279,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("country/{countryId}")]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
