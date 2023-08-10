@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BookReviewingAPI.Models;
+using BookReviewingAPI.Models.Auth_DTOS;
 using BookReviewingAPI.Models.DTOS;
 
 namespace BookReviewingAPI
@@ -17,6 +18,7 @@ namespace BookReviewingAPI
             CreateMap<CountryCreateDTO, Country>().ReverseMap();
             CreateMap<AuthorCreateDTO, Author>();
             CreateMap<BookCreateDTO,Book>();
+            CreateMap<RegisterRequestDTO,LocalUser>();
         }
     }
 }
