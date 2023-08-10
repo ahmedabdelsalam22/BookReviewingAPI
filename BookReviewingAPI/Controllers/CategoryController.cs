@@ -4,6 +4,7 @@ using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
+using BookReviewingAPI.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -15,14 +16,13 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private ICategoryRepository _categoryRepository;
-        private IBookRepository _bookRepository;
+        private IUnitOfWork _unitOfWork;
         private readonly APIResponse _apiResponse;
         private IMapper _mapper;
 
-        public CategoryController(ICategoryRepository categoryRepository, IBookRepository bookRepository,IMapper mapper)
+        public CategoryController(IUnitOfWork unitOfWork,IMapper mapper)
         {
-            _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
             _apiResponse = new APIResponse();
             _mapper = mapper;
         }
@@ -35,7 +35,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                List<Category> categories = await _categoryRepository.GetAllAsync();
+                List<Category> categories = await _unitOfWork.categoryRepository.GetAllAsync();
                 if (categories == null)
                 {
                     return NotFound();
@@ -67,7 +67,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Category category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
+                Category category = await _unitOfWork.categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
                 if (category == null)
                 {
                     return NotFound("No category found with this id");
@@ -94,12 +94,12 @@ namespace BookReviewingAPI.Controllers
         {
             try 
             {
-                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false);
+                Book? book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false);
                 if (book == null)
                 {
                     return NotFound();
                 }
-                List<Category> categories = await _categoryRepository.GetCategoriesByBookId(bookId);
+                List<Category> categories = await _unitOfWork.categoryRepository.GetCategoriesByBookId(bookId);
                 if (categories == null)
                 {
                     return NotFound();
@@ -129,12 +129,12 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Category? category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
+                Category? category = await _unitOfWork.categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
                 if (category == null)
                 {
                     return NotFound();
                 }
-                List<Book> books = await _bookRepository.GetBooksByCategoryId(categoryId);
+                List<Book> books = await _unitOfWork.bookRepository.GetBooksByCategoryId(categoryId);
                 if (books == null)
                 {
                     return NotFound();
@@ -168,7 +168,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var category = await _categoryRepository.GetAsync(filter: x => x.Name.ToLower() == categoryDTO.Name.ToLower());
+                var category = await _unitOfWork.categoryRepository.GetAsync(filter: x => x.Name.ToLower() == categoryDTO.Name.ToLower());
                 if (category != null)
                 {
                     return BadRequest("this category already exists");
@@ -176,8 +176,8 @@ namespace BookReviewingAPI.Controllers
 
                 Category categoryToDB = _mapper.Map<Category>(categoryDTO);
 
-                await _categoryRepository.CreateAsync(categoryToDB);
-                await _categoryRepository.SaveChanges();
+                await _unitOfWork.categoryRepository.CreateAsync(categoryToDB);
+                await _unitOfWork.SaveChangesAsync();
 
                 _apiResponse.StatusCode = HttpStatusCode.OK;
                 _apiResponse.IsSuccess = true;
@@ -211,7 +211,7 @@ namespace BookReviewingAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                Category category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
+                Category category = await _unitOfWork.categoryRepository.GetAsync(filter: x => x.Id == categoryId, tracked: false);
                 if (category == null)
                 {
                     return NotFound(ModelState);
@@ -223,8 +223,8 @@ namespace BookReviewingAPI.Controllers
 
                 Category categoryToDB = _mapper.Map<Category>(categoryDTO);
 
-                _categoryRepository.Update(categoryToDB);
-                await _categoryRepository.SaveChanges();
+                _unitOfWork.categoryRepository.Update(categoryToDB);
+                await _unitOfWork.SaveChangesAsync();
 
                 _apiResponse.StatusCode = HttpStatusCode.OK;
                 _apiResponse.IsSuccess = true;
@@ -249,19 +249,19 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Category category = await _categoryRepository.GetAsync(filter: x => x.Id == categoryId);
+                Category category = await _unitOfWork.categoryRepository.GetAsync(filter: x => x.Id == categoryId);
                 if (category == null)
                 {
                     return NotFound("category does't exists");
                 }
-                List<Book> books = await _bookRepository.GetBooksByCategoryId(categoryId);
+                List<Book> books = await _unitOfWork.bookRepository.GetBooksByCategoryId(categoryId);
                 if (books.Count() > 0)
                 {
                     ModelState.AddModelError("", $"Category {category.Name} cannot be deleted because it is used by at least one book");
                     return StatusCode(409,ModelState);
                 }
-                _categoryRepository.Delete(category);
-                await _categoryRepository.SaveChanges();
+                _unitOfWork.categoryRepository.Delete(category);
+                await _unitOfWork.SaveChangesAsync();
 
                 _apiResponse.StatusCode = HttpStatusCode.OK;
                 _apiResponse.IsSuccess = true;

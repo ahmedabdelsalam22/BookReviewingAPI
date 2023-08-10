@@ -3,6 +3,7 @@ using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
+using BookReviewingAPI.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -15,14 +16,13 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class ReviewerController : ControllerBase
     {
-        private readonly IReviewerRepository _reviewerRepository;
-        private readonly IReviewRepository _reviewRepository;
+        private IUnitOfWork _unitOfWork;
         private APIResponse _response;
         private IMapper _mapper;
 
-        public ReviewerController(IReviewerRepository reviewreRepository, IReviewRepository reviewRepository,IMapper mapper)
+        public ReviewerController(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _reviewerRepository = reviewreRepository;
+            _unitOfWork = unitOfWork;
             _response = new APIResponse();
             _mapper = mapper;
         }
@@ -34,7 +34,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                IEnumerable<Reviewer> reviewers = await _reviewerRepository.GetAllAsync();
+                IEnumerable<Reviewer> reviewers = await _unitOfWork.reviewerRepository.GetAllAsync();
                 if (reviewers == null) 
                 {
                     return NotFound();
@@ -66,7 +66,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Reviewer? reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == id, tracked: false);
+                Reviewer? reviewer = await _unitOfWork.reviewerRepository.GetAsync(filter: x => x.Id == id, tracked: false);
                 if (reviewer == null)
                 {
                     return NotFound("No reviewers exists with this id");
@@ -100,7 +100,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Reviewer? reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, tracked: false, includeProperties: "Reviews");
+                Reviewer? reviewer = await _unitOfWork.reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, tracked: false, includeProperties: "Reviews");
                 if (reviewer == null)
                 {
                     return NotFound();
@@ -149,7 +149,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Review? review = await _reviewRepository.GetAsync(filter: x => x.Id == reviewId, tracked: false, includeProperties: "Reviewer");
+                Review? review = await _unitOfWork.reviewRepository.GetAsync(filter: x => x.Id == reviewId, tracked: false, includeProperties: "Reviewer");
                 if (review == null)
                 {
                     return NotFound("No reviews exists with this id");
@@ -197,8 +197,8 @@ namespace BookReviewingAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                await _reviewerRepository.CreateAsync(reviewer);
-                await _reviewerRepository.SaveChanges();
+                await _unitOfWork.reviewerRepository.CreateAsync(reviewer);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
@@ -233,7 +233,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                Reviewer reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, tracked: false);
+                Reviewer reviewer = await _unitOfWork.reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, tracked: false);
                 if (reviewer == null)
                 {
                     return NotFound("no reviewer exists with this id");
@@ -241,8 +241,8 @@ namespace BookReviewingAPI.Controllers
 
                 Reviewer reviewerToDB = _mapper.Map<Reviewer>(reviewerDTO);
 
-                _reviewerRepository.Update(reviewerToDB);
-                await _reviewerRepository.SaveChanges();
+                _unitOfWork.reviewerRepository.Update(reviewerToDB);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
@@ -265,14 +265,14 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Reviewer reviewer = await _reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, includeProperties: "Reviews");
+                Reviewer reviewer = await _unitOfWork.reviewerRepository.GetAsync(filter: x => x.Id == reviewerId, includeProperties: "Reviews");
                 if (reviewer == null)
                 {
                     return NotFound("reviewer does't exists");
                 }
                 List<Review>? reviews = reviewer.Reviews.ToList();
-                _reviewRepository.DeleteReviews(reviews);
-                await _reviewRepository.SaveChanges();
+                _unitOfWork.reviewRepository.DeleteReviews(reviews);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;

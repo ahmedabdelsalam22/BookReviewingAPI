@@ -4,6 +4,7 @@ using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
+using BookReviewingAPI.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -20,14 +21,13 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class CountryController : ControllerBase
     {
-        private readonly ICountryRepository _countryRepository;
-        private readonly IAuthorRepository _authorRepository;
+        private IUnitOfWork _unitOfWork;
         private APIResponse _response;
         private IMapper _mapper;
 
-        public CountryController(ICountryRepository repository,IAuthorRepository authorRepository,IMapper mapper)
+        public CountryController(IUnitOfWork unitOfWork,IMapper mapper)
         {
-            _countryRepository = repository;
+            _unitOfWork = unitOfWork;
             _response = new APIResponse();
             _mapper = mapper;
         }
@@ -39,7 +39,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                IEnumerable<Country> countries = await _countryRepository.GetAllAsync();
+                IEnumerable<Country> countries = await _unitOfWork.countryRepository.GetAllAsync();
                 if (countries == null) 
                 {
                     return NotFound("No countries exists with this id");
@@ -71,7 +71,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Country? country = await _countryRepository.GetAsync(filter: x => x.Id == countryId, tracked: false);
+                Country? country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == countryId, tracked: false);
                 if (country == null)
                 {
                     return NotFound("No countries exists with this id");
@@ -107,7 +107,7 @@ namespace BookReviewingAPI.Controllers
                  {
                      return BadRequest();
                  }
-                 Author? author = await _authorRepository.GetAsync(filter: x => x.Id == authorId, includeProperties: "Country");
+                 Author? author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId, includeProperties: "Country");
                  if (author == null)
                  {
                      return NotFound("No authors exists with this id");
@@ -151,7 +151,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Country? country = await _countryRepository.GetAsync(filter: x => x.Id == countryId, includeProperties: "Authors");
+                Country? country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == countryId, includeProperties: "Authors");
                 if (country == null)
                 {
                     return NotFound("No countries exists with this id");
@@ -197,7 +197,7 @@ namespace BookReviewingAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var country = await _countryRepository.GetAsync(filter: x => x.Name.ToUpper() == countryCreateDTO.Name.ToUpper());
+                var country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Name.ToUpper() == countryCreateDTO.Name.ToUpper());
 
                 if (country != null)
                 {
@@ -206,8 +206,8 @@ namespace BookReviewingAPI.Controllers
 
                 var countryToDb = _mapper.Map<Country>(countryCreateDTO);
 
-                await _countryRepository.CreateAsync(countryToDb);
-                await _countryRepository.SaveChanges();
+                await _unitOfWork.countryRepository.CreateAsync(countryToDb);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
@@ -240,7 +240,7 @@ namespace BookReviewingAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                Country country = await _countryRepository.GetAsync(filter: x => x.Id == countryId,tracked:false);
+                Country country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == countryId,tracked:false);
                 if (country == null)
                 {
                     return NotFound(ModelState);
@@ -252,8 +252,8 @@ namespace BookReviewingAPI.Controllers
 
                 Country countryToDB = _mapper.Map<Country>(countryDTO);
 
-                _countryRepository.Update(countryToDB);
-                await _countryRepository.SaveChanges();
+                _unitOfWork.countryRepository.Update(countryToDB);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
@@ -278,7 +278,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Country country = await _countryRepository.GetAsync(filter: x => x.Id == countryId, includeProperties: "Authors");
+                Country country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == countryId, includeProperties: "Authors");
                 if (country == null)
                 {
                     return NotFound("country does't exists");
@@ -291,8 +291,8 @@ namespace BookReviewingAPI.Controllers
                     return StatusCode(409, ModelState);
                 }
 
-                _countryRepository.Delete(country);
-                await _countryRepository.SaveChanges();
+                _unitOfWork.countryRepository.Delete(country);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
