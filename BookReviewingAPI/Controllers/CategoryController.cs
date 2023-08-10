@@ -5,6 +5,7 @@ using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using BookReviewingAPI.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -27,6 +28,7 @@ namespace BookReviewingAPI.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("allCategories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -55,6 +57,8 @@ namespace BookReviewingAPI.Controllers
                 return _apiResponse;
             }
         }
+
+        [Authorize]
         [HttpGet("category/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -86,6 +90,8 @@ namespace BookReviewingAPI.Controllers
                 return _apiResponse;
             }
         }
+
+        [Authorize]
         [HttpGet("categories/bookId/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -121,6 +127,8 @@ namespace BookReviewingAPI.Controllers
                 return _apiResponse;
             }
         }
+
+        [Authorize]
         [HttpGet("books/categoryId/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -156,6 +164,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize(Roles ="admin")]
         [HttpPost("category/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -194,6 +203,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("category/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -241,6 +251,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("category/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
