@@ -24,7 +24,6 @@ namespace BookReviewingAPI.Controllers
         {
             _categoryRepository = categoryRepository;
             _apiResponse = new APIResponse();
-            _bookRepository = bookRepository;
             _mapper = mapper;
         }
 
