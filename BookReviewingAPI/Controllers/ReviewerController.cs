@@ -4,6 +4,7 @@ using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using BookReviewingAPI.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -27,6 +28,7 @@ namespace BookReviewingAPI.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("allReviewers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,6 +57,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("reviewer/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -89,6 +92,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("reviewer/{reviewerId}/reviews")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -138,6 +142,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("reviewers/{reviewId}/reviewer")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -185,6 +190,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles ="admin")]
         [HttpPost("reviewer/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -216,6 +222,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("reviewer/reviewerId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -260,7 +267,11 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("reviewer/{reviewerId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> DeleteReviewer(int reviewerId) 
         {
             try

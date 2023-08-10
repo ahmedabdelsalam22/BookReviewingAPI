@@ -4,9 +4,11 @@ using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using BookReviewingAPI.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Data;
 using System.Net;
 
 namespace BookReviewingAPI.Controllers
@@ -25,6 +27,7 @@ namespace BookReviewingAPI.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("allReviews")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -52,6 +55,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("review/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,6 +91,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("reviews/bookId/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,6 +136,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("book/reviewId/{reviewId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -177,6 +183,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost("review/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -224,6 +231,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("review/{reviewId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -276,6 +284,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("review/{reviewId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
