@@ -18,6 +18,7 @@ namespace BookReviewingAPI.Data
         public DbSet<Reviewer> Reviewers { get; set; }
         public DbSet<BookAuthor> BookAuthors { get; set; }
         public DbSet<BookCategory> BookCategories { get; set; }
+        public DbSet<LocalUser> LocalUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
