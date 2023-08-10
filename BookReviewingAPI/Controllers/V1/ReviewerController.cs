@@ -11,10 +11,11 @@ using Newtonsoft.Json;
 using System.Diagnostics.Metrics;
 using System.Net;
 
-namespace BookReviewingAPI.Controllers
+namespace BookReviewingAPI.Controllers.V1
 {
-    [Route("api/")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class ReviewerController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
@@ -37,7 +38,7 @@ namespace BookReviewingAPI.Controllers
             try
             {
                 IEnumerable<Reviewer> reviewers = await _unitOfWork.reviewerRepository.GetAllAsync();
-                if (reviewers == null) 
+                if (reviewers == null)
                 {
                     return NotFound();
                 }
@@ -122,7 +123,7 @@ namespace BookReviewingAPI.Controllers
                 }
 
                 List<Review> reviewsList = reviewerJson.Reviews.ToList();
-                if (reviewsList == null) 
+                if (reviewsList == null)
                 {
                     return NotFound();
                 }
@@ -133,7 +134,7 @@ namespace BookReviewingAPI.Controllers
 
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -180,7 +181,7 @@ namespace BookReviewingAPI.Controllers
 
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -190,7 +191,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("reviewer/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -272,7 +273,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> DeleteReviewer(int reviewerId) 
+        public async Task<ActionResult<APIResponse>> DeleteReviewer(int reviewerId)
         {
             try
             {
@@ -290,7 +291,7 @@ namespace BookReviewingAPI.Controllers
                 _response.Result = "reviewer removed successfully";
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessage = new List<string>() { e.ToString() };

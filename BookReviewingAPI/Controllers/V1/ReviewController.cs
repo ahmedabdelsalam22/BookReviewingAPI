@@ -11,10 +11,11 @@ using Newtonsoft.Json;
 using System.Data;
 using System.Net;
 
-namespace BookReviewingAPI.Controllers
+namespace BookReviewingAPI.Controllers.V1
 {
-    [Route("api/")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class ReviewController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
@@ -36,7 +37,7 @@ namespace BookReviewingAPI.Controllers
             try
             {
                 IEnumerable<Review> reviews = await _unitOfWork.reviewRepository.GetAllAsync();
-                if (reviews == null) 
+                if (reviews == null)
                 {
                     return NotFound();
                 }
@@ -97,7 +98,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetReviewsByBookId(int bookId)
         {
-            try 
+            try
             {
                 if (bookId == 0)
                 {
@@ -127,7 +128,7 @@ namespace BookReviewingAPI.Controllers
 
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -140,7 +141,7 @@ namespace BookReviewingAPI.Controllers
         [HttpGet("book/reviewId/{reviewId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetBookByReviewId(int reviewId) 
+        public async Task<ActionResult<APIResponse>> GetBookByReviewId(int reviewId)
         {
             try
             {
@@ -148,7 +149,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Review? review = await _unitOfWork.reviewRepository.GetAsync(filter: x => x.Id == reviewId, tracked: false ,includeProperties:"Book");
+                Review? review = await _unitOfWork.reviewRepository.GetAsync(filter: x => x.Id == reviewId, tracked: false, includeProperties: "Book");
                 if (review == null)
                 {
                     return NotFound("No reviews exists with this id");
@@ -189,7 +190,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> CreateReview([FromBody] Review reviewToCreate)
         {
-            try 
+            try
             {
                 if (reviewToCreate == null)
                 {
@@ -220,7 +221,7 @@ namespace BookReviewingAPI.Controllers
                 _response.Result = reviewToCreate;
                 return _response;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessage = new List<string>() { e.ToString() };
@@ -306,7 +307,7 @@ namespace BookReviewingAPI.Controllers
                 _response.Result = "review removed successfully";
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;

@@ -10,10 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net;
 
-namespace BookReviewingAPI.Controllers
+namespace BookReviewingAPI.Controllers.V1
 {
-    [Route("api/")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class AuthorController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
@@ -26,6 +27,7 @@ namespace BookReviewingAPI.Controllers
             _mapper = mapper;
         }
         [Authorize]
+        [ResponseCache(Duration = 30)]
         [HttpGet("allAuthors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -94,7 +96,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> GetAuthorByBookId(int bookId) 
+        public async Task<ActionResult<APIResponse>> GetAuthorByBookId(int bookId)
         {
             try
             {
@@ -105,7 +107,7 @@ namespace BookReviewingAPI.Controllers
                     return NotFound("No books found with this id");
                 }
                 List<Author> authors = _unitOfWork.authorRepository.GetAuthorByBookId(bookId);
-                if (authors == null) 
+                if (authors == null)
                 {
                     return NotFound();
                 }
@@ -117,7 +119,7 @@ namespace BookReviewingAPI.Controllers
 
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -131,7 +133,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetBooksByAuthorId(int authorId) 
+        public async Task<ActionResult<APIResponse>> GetBooksByAuthorId(int authorId)
         {
             try
             {
@@ -142,7 +144,7 @@ namespace BookReviewingAPI.Controllers
                     return NotFound("No authors found with this id");
                 }
                 List<Book> books = await _unitOfWork.bookRepository.GetBooksByAuthorId(authorId);
-                if (books == null) 
+                if (books == null)
                 {
                     return NotFound();
                 }
@@ -163,21 +165,21 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("authors/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> CreateAuthor([FromBody] Author authorToCreate)
         {
-            try 
+            try
             {
                 if (authorToCreate == null)
                 {
                     return BadRequest(ModelState);
                 }
 
-                var country = await _unitOfWork.countryRepository.GetAsync(filter:x => x.Id == authorToCreate.Country.Id);
+                var country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == authorToCreate.Country.Id);
 
                 if (country == null)
                 {
@@ -195,11 +197,11 @@ namespace BookReviewingAPI.Controllers
                 _response.Result = authorToCreate;
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.ErrorMessage = new List<string>() {e.ToString() };
+                _response.ErrorMessage = new List<string>() { e.ToString() };
                 return _response;
             }
         }
@@ -221,7 +223,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                Author author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId,tracked:false);
+                Author author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId, tracked: false);
                 if (author == null)
                 {
                     return NotFound("No author exists with this id");
@@ -241,7 +243,7 @@ namespace BookReviewingAPI.Controllers
                 _response.Result = authorToUpdate;
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
@@ -284,7 +286,7 @@ namespace BookReviewingAPI.Controllers
                 _response.Result = "author deleted successfuly";
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;

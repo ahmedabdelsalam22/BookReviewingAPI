@@ -16,17 +16,18 @@ using System.Text.Json.Nodes;
 using System.Xml;
 using Formatting = Newtonsoft.Json.Formatting;
 
-namespace BookReviewingAPI.Controllers
+namespace BookReviewingAPI.Controllers.V1
 {
-    [Route("api/")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class CountryController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
         private APIResponse _response;
         private IMapper _mapper;
 
-        public CountryController(IUnitOfWork unitOfWork,IMapper mapper)
+        public CountryController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _response = new APIResponse();
@@ -43,7 +44,7 @@ namespace BookReviewingAPI.Controllers
             try
             {
                 IEnumerable<Country> countries = await _unitOfWork.countryRepository.GetAllAsync();
-                if (countries == null) 
+                if (countries == null)
                 {
                     return NotFound("No countries exists with this id");
                 }
@@ -106,42 +107,42 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         //TODO:FIX THIS BUG
         public async Task<ActionResult<APIResponse>> GetCountryByAuthorId(int authorId)
-         {
-             try 
-             {
-                 if (authorId == 0)
-                 {
-                     return BadRequest();
-                 }
-                 Author? author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId, includeProperties: "Country");
-                 if (author == null)
-                 {
-                     return NotFound("No authors exists with this id");
-                 }
-                 //string json = JsonConvert.SerializeObject(author, Formatting.Indented, new JsonSerializerSettings
-                 //{
-                 //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                 //});
-                 //Country? country = JsonConvert.DeserializeObject<Country>(json);
+        {
+            try
+            {
+                if (authorId == 0)
+                {
+                    return BadRequest();
+                }
+                Author? author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId, includeProperties: "Country");
+                if (author == null)
+                {
+                    return NotFound("No authors exists with this id");
+                }
+                //string json = JsonConvert.SerializeObject(author, Formatting.Indented, new JsonSerializerSettings
+                //{
+                //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                //});
+                //Country? country = JsonConvert.DeserializeObject<Country>(json);
                 Country? country = author.Country;
-                 if (country == null)
-                 {
-                     return NotFound("No countries exists with this id");
-                 }
+                if (country == null)
+                {
+                    return NotFound("No countries exists with this id");
+                }
 
-                 _response.StatusCode = HttpStatusCode.OK;
-                 _response.IsSuccess = true;
-                 _response.Result = country;
-                 return _response;
-             }
-             catch (Exception e)
-             {
-                 _response.StatusCode = HttpStatusCode.BadRequest;
-                 _response.IsSuccess = false;
-                 _response.ErrorMessage = new List<string> { e.ToString() };
-                 return _response;
-             }
-         }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = country;
+                return _response;
+            }
+            catch (Exception e)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string> { e.ToString() };
+                return _response;
+            }
+        }
 
         [Authorize]
         [HttpGet("{countryId}/authors")]
@@ -192,13 +193,13 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> CreateCountry([FromBody] CountryCreateDTO countryCreateDTO)
         {
-            try 
+            try
             {
                 if (countryCreateDTO == null)
                 {
@@ -221,7 +222,8 @@ namespace BookReviewingAPI.Controllers
                 _response.IsSuccess = true;
                 _response.Result = countryToDb;
                 return _response;
-            }catch(Exception e) 
+            }
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessage = new List<string>() { e.ToString() };
@@ -236,7 +238,7 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> UpdateCountry([FromBody] CountryDTO countryDTO , int countryId)
+        public async Task<ActionResult<APIResponse>> UpdateCountry([FromBody] CountryDTO countryDTO, int countryId)
         {
             try
             {
@@ -249,7 +251,7 @@ namespace BookReviewingAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                Country country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == countryId,tracked:false);
+                Country country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == countryId, tracked: false);
                 if (country == null)
                 {
                     return NotFound(ModelState);
@@ -308,7 +310,7 @@ namespace BookReviewingAPI.Controllers
                 _response.IsSuccess = true;
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;

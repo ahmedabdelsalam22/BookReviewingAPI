@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace BookReviewingAPI.Controllers
+namespace BookReviewingAPI.Controllers.V1
 {
-    [Route("api/")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class BookController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
         private APIResponse _response;
         private IMapper _mapper;
-        public BookController(IMapper mapper , IUnitOfWork unitOfWork)
+        public BookController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
             _response = new APIResponse();
@@ -33,7 +34,7 @@ namespace BookReviewingAPI.Controllers
             try
             {
                 IEnumerable<Book> books = await _unitOfWork.bookRepository.GetAllAsync();
-                if (books == null) 
+                if (books == null)
                 {
                     return NotFound();
                 }
@@ -58,16 +59,16 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> GetBookById(int bookId) 
+        public async Task<ActionResult<APIResponse>> GetBookById(int bookId)
         {
             try
             {
-                if (bookId == 0) 
+                if (bookId == 0)
                 {
                     return BadRequest();
                 }
                 Book? book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false);
-                if (book == null) 
+                if (book == null)
                 {
                     return NotFound("No books exists with this id");
                 }
@@ -79,7 +80,7 @@ namespace BookReviewingAPI.Controllers
 
                 return _response;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -129,7 +130,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Book? book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false,includeProperties: "Reviews");
+                Book? book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false, includeProperties: "Reviews");
 
                 if (book == null)
                 {
@@ -142,11 +143,11 @@ namespace BookReviewingAPI.Controllers
 
                 List<int> ratings = new List<int>();
 
-                foreach (var item in reviewDTOs) 
+                foreach (var item in reviewDTOs)
                 {
                     ratings.Add(item.Rating);
                 }
-                
+
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
                 _response.Result = ratings;
@@ -163,7 +164,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("book/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -207,9 +208,9 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
-        public async Task<ActionResult<APIResponse>> UpdateBook([FromBody] BookDTO bookDTO,int bookId)
+        public async Task<ActionResult<APIResponse>> UpdateBook([FromBody] BookDTO bookDTO, int bookId)
         {
-            try 
+            try
             {
                 if (bookDTO == null)
                 {
@@ -219,7 +220,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                Book book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId,tracked:false);
+                Book book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false);
                 if (book == null)
                 {
                     return NotFound("no book exists with this id");
@@ -235,7 +236,8 @@ namespace BookReviewingAPI.Controllers
                 _response.Result = bookToDB;
                 return _response;
 
-            }catch(Exception e) 
+            }
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessage = new List<string>() { e.ToString() };
@@ -273,7 +275,7 @@ namespace BookReviewingAPI.Controllers
                 return _response;
 
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessage = new List<string>() { e.ToString() };

@@ -11,17 +11,18 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Net;
 
-namespace BookReviewingAPI.Controllers
+namespace BookReviewingAPI.Controllers.V1
 {
-    [Route("api/")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class CategoryController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
         private readonly APIResponse _apiResponse;
         private IMapper _mapper;
 
-        public CategoryController(IUnitOfWork unitOfWork,IMapper mapper)
+        public CategoryController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _apiResponse = new APIResponse();
@@ -49,7 +50,7 @@ namespace BookReviewingAPI.Controllers
                 _apiResponse.Result = categoryDTOs;
                 return _apiResponse;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _apiResponse.IsSuccess = false;
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
@@ -63,9 +64,9 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> GetCategoryById(int categoryId) 
+        public async Task<ActionResult<APIResponse>> GetCategoryById(int categoryId)
         {
-            try 
+            try
             {
                 if (categoryId == 0)
                 {
@@ -82,7 +83,8 @@ namespace BookReviewingAPI.Controllers
                 _apiResponse.IsSuccess = true;
                 _apiResponse.Result = categoryDTO;
                 return _apiResponse;
-            }catch(Exception e) 
+            }
+            catch (Exception e)
             {
                 _apiResponse.IsSuccess = false;
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
@@ -96,9 +98,9 @@ namespace BookReviewingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> GetCategoriesByBookId(int bookId) 
+        public async Task<ActionResult<APIResponse>> GetCategoriesByBookId(int bookId)
         {
-            try 
+            try
             {
                 Book? book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId, tracked: false);
                 if (book == null)
@@ -164,7 +166,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("category/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -193,7 +195,7 @@ namespace BookReviewingAPI.Controllers
                 _apiResponse.Result = categoryToDB;
                 return _apiResponse;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _apiResponse.IsSuccess = false;
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
@@ -269,7 +271,7 @@ namespace BookReviewingAPI.Controllers
                 if (books.Count() > 0)
                 {
                     ModelState.AddModelError("", $"Category {category.Name} cannot be deleted because it is used by at least one book");
-                    return StatusCode(409,ModelState);
+                    return StatusCode(409, ModelState);
                 }
                 _unitOfWork.categoryRepository.Delete(category);
                 await _unitOfWork.SaveChangesAsync();
@@ -278,7 +280,7 @@ namespace BookReviewingAPI.Controllers
                 _apiResponse.IsSuccess = true;
                 return _apiResponse;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 _apiResponse.StatusCode = HttpStatusCode.BadRequest;
                 _apiResponse.IsSuccess = false;
