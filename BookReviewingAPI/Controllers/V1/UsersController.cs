@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace BookReviewingAPI.Controllers
+namespace BookReviewingAPI.Controllers.V1
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -25,7 +26,7 @@ namespace BookReviewingAPI.Controllers
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> Login([FromBody] LoginRequestDTO loginRequestDTO) 
+        public async Task<ActionResult<APIResponse>> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
             var loginResponse = await _userRepository.Login(loginRequestDTO);
             if (loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
@@ -55,7 +56,7 @@ namespace BookReviewingAPI.Controllers
                 return BadRequest(_response);
             }
 
-           var user = await _userRepository.Register(registerRequestDTO);
+            var user = await _userRepository.Register(registerRequestDTO);
             if (user == null)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
