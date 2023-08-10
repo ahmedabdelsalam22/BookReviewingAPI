@@ -3,6 +3,7 @@ using Azure;
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
+using BookReviewingAPI.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -14,16 +15,13 @@ namespace BookReviewingAPI.Controllers
     [ApiController]
     public class AuthorController : ControllerBase
     {
-        private readonly IAuthorRepository _authorRepository;
-        private readonly IBookRepository _bookRepository;
-        private readonly ICountryRepository _countryRepository;
+        private IUnitOfWork _unitOfWork;
         private APIResponse _response;
         private IMapper _mapper;
-        public AuthorController(IAuthorRepository repository, IBookRepository bookRepository, IMapper mapper, ICountryRepository countryRepository)
+        public AuthorController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _response = new APIResponse();
-            _bookRepository = bookRepository;
-            _countryRepository = countryRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
         [HttpGet("allAuthors")]
@@ -34,7 +32,7 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                IEnumerable<Author> authors = await _authorRepository.GetAllAsync();
+                IEnumerable<Author> authors = await _unitOfWork.authorRepository.GetAllAsync();
 
                 List<AuthorDTO> authorsDTO = _mapper.Map<List<AuthorDTO>>(authors);
 
@@ -63,7 +61,7 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                Author? author = await _authorRepository.GetAsync(filter: x => x.Id == id, tracked: false);
+                Author? author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == id, tracked: false);
                 if (author == null)
                 {
                     return NotFound("No authors exists with this id");
@@ -95,13 +93,13 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Book? book = await _bookRepository.GetAsync(filter: x => x.Id == bookId);
+                Book? book = await _unitOfWork.bookRepository.GetAsync(filter: x => x.Id == bookId);
 
                 if (book == null)
                 {
                     return NotFound("No books found with this id");
                 }
-                List<Author> authors = _authorRepository.GetAuthorByBookId(bookId);
+                List<Author> authors = _unitOfWork.authorRepository.GetAuthorByBookId(bookId);
                 if (authors == null) 
                 {
                     return NotFound();
@@ -131,13 +129,13 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Author? author = await _authorRepository.GetAsync(filter: x => x.Id == authorId);
+                Author? author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId);
 
                 if (author == null)
                 {
                     return NotFound("No authors found with this id");
                 }
-                List<Book> books = await _bookRepository.GetBooksByAuthorId(authorId);
+                List<Book> books = await _unitOfWork.bookRepository.GetBooksByAuthorId(authorId);
                 if (books == null) 
                 {
                     return NotFound();
@@ -172,7 +170,7 @@ namespace BookReviewingAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var country = await _countryRepository.GetAsync(filter:x => x.Id == authorToCreate.Country.Id);
+                var country = await _unitOfWork.countryRepository.GetAsync(filter:x => x.Id == authorToCreate.Country.Id);
 
                 if (country == null)
                 {
@@ -182,8 +180,8 @@ namespace BookReviewingAPI.Controllers
 
                 authorToCreate.Country = country;
 
-                await _authorRepository.CreateAsync(authorToCreate);
-                await _authorRepository.SaveChanges();
+                await _unitOfWork.authorRepository.CreateAsync(authorToCreate);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.IsSuccess = true;
@@ -214,20 +212,20 @@ namespace BookReviewingAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                Author author = await _authorRepository.GetAsync(filter: x => x.Id == authorId,tracked:false);
+                Author author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId,tracked:false);
                 if (author == null)
                 {
                     return NotFound("No author exists with this id");
                 }
-                Country country = await _countryRepository.GetAsync(filter: x => x.Id == authorToUpdate.Country.Id);
+                Country country = await _unitOfWork.countryRepository.GetAsync(filter: x => x.Id == authorToUpdate.Country.Id);
                 if (country == null)
                 {
                     return NotFound("No country exists with this id");
                 }
                 authorToUpdate.Country = country;
 
-                _authorRepository.UpdateAsync(authorToUpdate);
-                await _authorRepository.SaveChanges();
+                _unitOfWork.authorRepository.UpdateAsync(authorToUpdate);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.IsSuccess = true;
@@ -252,13 +250,13 @@ namespace BookReviewingAPI.Controllers
         {
             try
             {
-                Author author = await _authorRepository.GetAsync(filter: x => x.Id == authorId);
+                Author author = await _unitOfWork.authorRepository.GetAsync(filter: x => x.Id == authorId);
                 if (author == null)
                 {
                     return NotFound("no authors found with this id");
                 }
                 // related entities
-                List<Book> books = await _bookRepository.GetBooksByAuthorId(authorId);
+                List<Book> books = await _unitOfWork.bookRepository.GetBooksByAuthorId(authorId);
                 if (books.Count() > 0)
                 {
                     ModelState.AddModelError(
@@ -268,8 +266,8 @@ namespace BookReviewingAPI.Controllers
                     return StatusCode(409, ModelState);
                 }
 
-                _authorRepository.Delete(author);
-                await _authorRepository.SaveChanges();
+                _unitOfWork.authorRepository.Delete(author);
+                await _unitOfWork.SaveChangesAsync();
 
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.IsSuccess = true;
