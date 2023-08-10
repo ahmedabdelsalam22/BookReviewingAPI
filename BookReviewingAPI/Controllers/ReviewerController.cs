@@ -24,7 +24,6 @@ namespace BookReviewingAPI.Controllers
         {
             _reviewerRepository = reviewreRepository;
             _response = new APIResponse();
-            _reviewRepository = reviewRepository;
             _mapper = mapper;
         }
 
