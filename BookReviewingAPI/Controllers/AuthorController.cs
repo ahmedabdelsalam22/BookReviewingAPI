@@ -21,7 +21,6 @@ namespace BookReviewingAPI.Controllers
         private IMapper _mapper;
         public AuthorController(IAuthorRepository repository, IBookRepository bookRepository, IMapper mapper, ICountryRepository countryRepository)
         {
-            _authorRepository = repository;
             _response = new APIResponse();
             _bookRepository = bookRepository;
             _countryRepository = countryRepository;
