@@ -69,9 +69,5 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             return result;
         }
 
-        public async Task SaveChanges()
-        {
-            await _db.SaveChangesAsync();
-        }
     }
 }

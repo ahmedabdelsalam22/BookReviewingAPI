@@ -20,7 +20,6 @@ namespace BookReviewingAPI.Controllers
             _bookRepository = repository;
             _response = new APIResponse();
             _mapper = mapper;
-            _reviewRepository = reviewRepository;
         }
 
         [HttpGet("allBooks")]
