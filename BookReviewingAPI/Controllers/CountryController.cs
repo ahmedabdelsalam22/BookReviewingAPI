@@ -29,7 +29,6 @@ namespace BookReviewingAPI.Controllers
         {
             _countryRepository = repository;
             _response = new APIResponse();
-            _authorRepository = authorRepository;
             _mapper = mapper;
         }
         [HttpGet("country/allCountries")]
