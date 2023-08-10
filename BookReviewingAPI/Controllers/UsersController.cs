@@ -1,9 +1,11 @@
 ﻿using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.Auth_DTOS;
 using BookReviewingAPI.Repository.IRepository;
+using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BookReviewingAPI.Controllers
 {
@@ -41,5 +43,29 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [HttpPost("register")]
+        public async Task<ActionResult<APIResponse>> Register([FromBody] RegisterRequestDTO registerRequestDTO)
+        {
+            bool ifUserNameIsUnique = _userRepository.IsUniqueUser(registerRequestDTO.UserName);
+            if (!ifUserNameIsUnique)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string>() { "Username  already exists" };
+                return BadRequest(_response);
+            }
+
+           var user = await _userRepository.Register(registerRequestDTO);
+            if (user == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string>() { "Error while registering" };
+                return BadRequest(_response);
+            }
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.IsSuccess = true;
+            return Ok(_response);
+        }
     }
 }
