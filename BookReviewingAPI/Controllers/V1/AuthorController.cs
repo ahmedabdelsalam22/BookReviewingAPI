@@ -27,7 +27,8 @@ namespace BookReviewingAPI.Controllers.V1
             _mapper = mapper;
         }
         [Authorize]
-        [ResponseCache(Duration = 30)]
+        //[ResponseCache(Duration = 30)] // putting caching time manually for all endPoint singly
+        [ResponseCache(CacheProfileName ="Default30")] // putting caching time for all endPoint .. from cacheProfile config in program.cs
         [HttpGet("allAuthors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
