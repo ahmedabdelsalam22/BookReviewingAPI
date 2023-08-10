@@ -3,6 +3,7 @@ using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.DTOS;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -22,6 +23,7 @@ namespace BookReviewingAPI.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("allBooks")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -50,6 +52,8 @@ namespace BookReviewingAPI.Controllers
                 return _response;
             }
         }
+
+        [Authorize]
         [HttpGet("book/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -85,6 +89,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("book/isbn/{isbn}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -116,6 +121,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("book/{bookId}/rating")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -157,6 +163,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles ="admin")]
         [HttpPost("book/create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -194,6 +201,7 @@ namespace BookReviewingAPI.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("book/bookId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -237,6 +245,7 @@ namespace BookReviewingAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("book/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
