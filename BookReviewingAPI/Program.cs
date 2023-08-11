@@ -1,9 +1,11 @@
 using BookReviewingAPI;
 using BookReviewingAPI.Data;
+using BookReviewingAPI.Models;
 using BookReviewingAPI.Repository.IRepository;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using BookReviewingAPI.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -99,6 +101,10 @@ builder.Services.AddSwaggerGen(options => {
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(connectionString: connectionString));
 
+// identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddScoped<IBookRepository,BookRepository>();
 builder.Services.AddScoped<IAuthorRepository,AuthorRepository>();
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
@@ -145,6 +151,7 @@ builder.Services.AddAuthentication(x=>{
         ValidateAudience = false
     };
 });
+ 
 
 
 var app = builder.Build();
