@@ -19,6 +19,7 @@ namespace BookReviewingAPI
             CreateMap<AuthorCreateDTO, Author>();
             CreateMap<BookCreateDTO,Book>();
             CreateMap<RegisterRequestDTO,LocalUser>();
+            CreateMap<ApplicationUser,UserDTO>();
         }
     }
 }

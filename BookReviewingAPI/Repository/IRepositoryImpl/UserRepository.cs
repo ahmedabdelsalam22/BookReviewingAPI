@@ -29,7 +29,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
 
         public bool IsUniqueUser(string username)
         {
-            var user = _db.LocalUsers.FirstOrDefault(x => x.UserName.ToLower() == username.ToLower());
+            var user = _db.ApplicationUsers.FirstOrDefault(x => x.UserName.ToLower() == username.ToLower());
             if (user == null) 
             {
                 return true;
@@ -39,9 +39,12 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
 
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
-            LocalUser? user = await _db.LocalUsers.FirstOrDefaultAsync(x => 
-                      x.UserName.ToLower() ==loginRequestDTO.UserName.ToLower() && x.Password == loginRequestDTO.Password);
-            if(user == null) 
+            ApplicationUser? user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => 
+                      x.UserName.ToLower() == loginRequestDTO.UserName.ToLower());
+
+            bool isValid = await _userManager.CheckPasswordAsync(user,loginRequestDTO.Password);
+
+            if(user == null || isValid == false) 
             {
                 return new LoginResponseDTO()
                 {
@@ -49,7 +52,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
                     Token = ""
                 };
             }
-
+            var roles = await _userManager.GetRolesAsync(user);
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey!);
 
@@ -57,6 +60,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             {
                 Subject = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
@@ -64,23 +68,44 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
 
             var token = tokenHandler.CreateToken(tokenDescripter);
 
+
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
-                user = user,
-                Token = tokenHandler.WriteToken(token)
+                user = userDTO,
+                Token = tokenHandler.WriteToken(token),
+                Role = roles.FirstOrDefault()
             };
             return loginResponseDTO;
         }
 
-        public async Task<LocalUser> Register(RegisterRequestDTO registerRequestDTO)
+        public async Task<UserDTO> Register(RegisterRequestDTO registerRequestDTO)
         {
-            LocalUser localUser = _mapper.Map<LocalUser>(registerRequestDTO);
+            ApplicationUser user = new()
+            {
+                UserName = registerRequestDTO.UserName,
+                Name = registerRequestDTO.Name,
+                Email = registerRequestDTO.UserName,
+                NormalizedEmail = registerRequestDTO.UserName.ToUpper(),
+            };
 
-           await _db.LocalUsers.AddAsync(localUser);
-           await _db.SaveChangesAsync();
+            try
+            {
+                var result = await _userManager.CreateAsync(user, registerRequestDTO.Password);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "admin");
 
-            localUser.Password = "";
-           return localUser;
+                    var userToReturn = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == registerRequestDTO.UserName);
+
+                    return _mapper.Map<UserDTO>(userToReturn);
+                }
+            }
+            catch (Exception ex)
+            { }
+
+            return new UserDTO();
         }
     }
 }
