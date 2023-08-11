@@ -3,6 +3,7 @@ using BookReviewingAPI.Data;
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.Auth_DTOS;
 using BookReviewingAPI.Repository.IRepository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,12 +17,14 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         private readonly ApplicationDbContext _db;
         private IMapper _mapper;
         private string? _secretKey;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserRepository(ApplicationDbContext db, IMapper mapper,IConfiguration configuration)
+        public UserRepository(ApplicationDbContext db, IMapper mapper,IConfiguration configuration, UserManager<ApplicationUser> userManager)
         {
             _db = db;
             _mapper = mapper;
             _secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+            _userManager = userManager;
         }
 
         public bool IsUniqueUser(string username)
@@ -46,7 +49,6 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
                     Token = ""
                 };
             }
-            // user wae found in LocalUser table in db .. so we will generate jwt token to this user ..
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey!);
@@ -55,7 +57,6 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             {
                 Subject = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
