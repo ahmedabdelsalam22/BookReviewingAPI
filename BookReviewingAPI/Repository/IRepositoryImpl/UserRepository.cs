@@ -3,6 +3,7 @@ using BookReviewingAPI.Data;
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.Auth_DTOS;
 using BookReviewingAPI.Repository.IRepository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,12 +17,14 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         private readonly ApplicationDbContext _db;
         private IMapper _mapper;
         private string? _secretKey;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserRepository(ApplicationDbContext db, IMapper mapper,IConfiguration configuration)
+        public UserRepository(ApplicationDbContext db, IMapper mapper,IConfiguration configuration, UserManager<ApplicationUser> userManager)
         {
             _db = db;
             _mapper = mapper;
             _secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+            _userManager = userManager;
         }
 
         public bool IsUniqueUser(string username)
