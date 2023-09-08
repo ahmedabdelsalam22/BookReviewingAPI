@@ -98,12 +98,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
                 var result = await _userManager.CreateAsync(user, registerRequestDTO.Password);
                 if (result.Succeeded)
                 {
-                    if (!_roleManager.RoleExistsAsync("admin").GetAwaiter().GetResult()) 
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole("admin"));
-                        await _roleManager.CreateAsync(new IdentityRole("customer"));
-                    }
-                    await _userManager.AddToRoleAsync(user, "admin");
+                    await  AssignRole(user.Email,"Customer");
 
                     var userToReturn = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == registerRequestDTO.UserName);
 
@@ -114,6 +109,21 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             { }
 
             return new UserDTO();
+        }
+
+        public async Task<bool> AssignRole(string email, string roleName)
+        {
+            ApplicationUser? user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Email!.ToLower() == email.ToLower());
+            if (user != null)
+            {
+                if (!_roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult()) // if this role does't exists in db 
+                {
+                    _roleManager.CreateAsync(new IdentityRole(roleName)).GetAwaiter().GetResult(); // we add role name to db
+                }
+                await _userManager.AddToRoleAsync(user, roleName); // if this role exists in db .. we add this role to this user
+                return true;
+            }
+            return false;
         }
     }
 }
