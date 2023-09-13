@@ -24,7 +24,6 @@ namespace BookReviewingAPI.Controllers.V1
         }
 
         [HttpPost("login")]
-        [AutoValidateAntiforgeryToken]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> Login([FromBody] LoginRequestDTO loginRequestDTO)
@@ -46,7 +45,6 @@ namespace BookReviewingAPI.Controllers.V1
         }
 
         [HttpPost("register")]
-        [AutoValidateAntiforgeryToken]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
 

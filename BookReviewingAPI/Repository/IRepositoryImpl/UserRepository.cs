@@ -43,9 +43,9 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
             ApplicationUser? user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => 
-                      x.UserName.ToLower() == loginRequestDTO.UserName.ToLower());
+                      x.UserName!.ToLower() == loginRequestDTO.UserName.ToLower());
 
-            bool isValid = await _userManager.CheckPasswordAsync(user,loginRequestDTO.Password);
+            bool isValid = await _userManager.CheckPasswordAsync(user!,loginRequestDTO.Password);
 
             if(user == null || isValid == false) 
             {
@@ -63,7 +63,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             {
                 Subject = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
+                    new Claim(ClaimTypes.Role, roles!.FirstOrDefault()),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
