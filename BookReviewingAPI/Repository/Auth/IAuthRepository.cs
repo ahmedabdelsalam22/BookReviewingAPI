@@ -9,5 +9,7 @@ namespace BookReviewingAPI.Repository.Auth
         Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
         Task<UserDTO> Register(RegisterRequestDTO registerRequestDTO);
         string GenerateToken(ApplicationUser user);
+        Task<bool> AssignRole(string email, string roleName);
+
     }
 }
