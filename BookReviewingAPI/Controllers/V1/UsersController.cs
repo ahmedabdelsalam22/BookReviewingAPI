@@ -1,6 +1,6 @@
 ﻿using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.Auth_DTOS;
-using BookReviewingAPI.Repository.IRepository;
+using BookReviewingAPI.Repository.Auth;
 using BookReviewingAPI.Repository.IRepositoryImpl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +14,10 @@ namespace BookReviewingAPI.Controllers.V1
     [ApiVersion("1.0")]
     public class UsersController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IAuthRepository _userRepository;
         protected APIResponse _response;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IAuthRepository userRepository)
         {
             _userRepository = userRepository;
             _response = new APIResponse();
