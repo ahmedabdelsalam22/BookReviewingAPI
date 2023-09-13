@@ -45,6 +45,9 @@ namespace BookReviewingAPI.Controllers.V1
         }
 
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+
         public async Task<ActionResult<APIResponse>> Register([FromBody] RegisterRequestDTO registerRequestDTO)
         {
             bool ifUserNameIsUnique = _userRepository.IsUniqueUser(registerRequestDTO.UserName);
