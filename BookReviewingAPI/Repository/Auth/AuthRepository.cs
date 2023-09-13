@@ -2,7 +2,6 @@
 using BookReviewingAPI.Data;
 using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.Auth_DTOS;
-using BookReviewingAPI.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,9 +9,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BookReviewingAPI.Repository.IRepositoryImpl
+namespace BookReviewingAPI.Repository.Auth
 {
-    public class UserRepository : IUserRepository
+    public class AuthRepository : IAuthRepository
     {
         private readonly ApplicationDbContext _db;
         private IMapper _mapper;
@@ -20,7 +19,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserRepository(ApplicationDbContext db, IMapper mapper,IConfiguration configuration,
+        public AuthRepository(ApplicationDbContext db, IMapper mapper, IConfiguration configuration,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _db = db;
@@ -33,7 +32,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
         public bool IsUniqueUser(string username)
         {
             var user = _db.ApplicationUsers.FirstOrDefault(x => x.UserName.ToLower() == username.ToLower());
-            if (user == null) 
+            if (user == null)
             {
                 return true;
             }
@@ -42,12 +41,12 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
 
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
-            ApplicationUser? user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => 
+            ApplicationUser? user = await _db.ApplicationUsers.FirstOrDefaultAsync(x =>
                       x.UserName!.ToLower() == loginRequestDTO.UserName.ToLower());
 
-            bool isValid = await _userManager.CheckPasswordAsync(user!,loginRequestDTO.Password);
+            bool isValid = await _userManager.CheckPasswordAsync(user!, loginRequestDTO.Password);
 
-            if(user == null || isValid == false) 
+            if (user == null || isValid == false)
             {
                 return new LoginResponseDTO()
                 {
@@ -55,21 +54,10 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
                     Token = ""
                 };
             }
-            var roles = await _userManager.GetRolesAsync(user);
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secretKey!);
 
-            var tokenDescripter = new SecurityTokenDescriptor()
-            {
-                Subject = new ClaimsIdentity(new Claim[] {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, roles!.FirstOrDefault()),
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-            };
+            // generate token 
 
-            var token = tokenHandler.CreateToken(tokenDescripter);
+            var token = GenerateToken(user);
 
 
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
@@ -77,8 +65,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
                 user = userDTO,
-                Token = tokenHandler.WriteToken(token),
-                Role = roles.FirstOrDefault()
+                Token = token,
             };
             return loginResponseDTO;
         }
@@ -89,7 +76,7 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             {
                 UserName = registerRequestDTO.UserName,
                 Name = registerRequestDTO.Name,
-                Email = registerRequestDTO.UserName,
+                Email = registerRequestDTO.Email,
                 NormalizedEmail = registerRequestDTO.UserName.ToUpper(),
             };
 
@@ -98,12 +85,9 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
                 var result = await _userManager.CreateAsync(user, registerRequestDTO.Password);
                 if (result.Succeeded)
                 {
-                    if (!_roleManager.RoleExistsAsync("admin").GetAwaiter().GetResult()) 
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole("admin"));
-                        await _roleManager.CreateAsync(new IdentityRole("customer"));
-                    }
-                    await _userManager.AddToRoleAsync(user, "admin");
+                    // assign role to user 
+
+                    await AssignRole(user.Email , "Customer");
 
                     var userToReturn = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == registerRequestDTO.UserName);
 
@@ -114,6 +98,44 @@ namespace BookReviewingAPI.Repository.IRepositoryImpl
             { }
 
             return new UserDTO();
+        }
+
+        public string GenerateToken(ApplicationUser user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_secretKey!);
+
+            List<Claim> claimList = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Email,user.Email!),
+                new Claim(JwtRegisteredClaimNames.Name,user.Name!),
+            };
+
+            var tokenDescripter = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(claimList),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature),
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescripter);
+
+            return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<bool> AssignRole(string email, string roleName)
+        {
+            ApplicationUser? user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Email!.ToLower() == email.ToLower());
+            if (user != null)
+            {
+                if (!_roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult()) // if this role does't exists in db 
+                {
+                    _roleManager.CreateAsync(new IdentityRole(roleName)).GetAwaiter().GetResult(); // we add role name to db
+                }
+                await _userManager.AddToRoleAsync(user, roleName); // if this role exists in db .. we add this role to this user
+                return true;
+            }
+            return false;
         }
     }
 }

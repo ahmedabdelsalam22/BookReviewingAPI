@@ -1,12 +1,15 @@
 ﻿using BookReviewingAPI.Models;
 using BookReviewingAPI.Models.Auth_DTOS;
 
-namespace BookReviewingAPI.Repository.IRepository
+namespace BookReviewingAPI.Repository.Auth
 {
-    public interface IUserRepository
+    public interface IAuthRepository
     {
         bool IsUniqueUser(string username);
         Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
         Task<UserDTO> Register(RegisterRequestDTO registerRequestDTO);
+        string GenerateToken(ApplicationUser user);
+        Task<bool> AssignRole(string email, string roleName);
+
     }
 }
