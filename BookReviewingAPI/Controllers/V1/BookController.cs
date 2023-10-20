@@ -23,7 +23,6 @@ namespace BookReviewingAPI.Controllers.V1
             _response = new APIResponse();
             _mapper = mapper;
         }
-
         [Authorize]
         [HttpGet("allBooks")]
         [ProducesResponseType(StatusCodes.Status200OK)]
