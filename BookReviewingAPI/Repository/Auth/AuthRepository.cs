@@ -57,7 +57,7 @@ namespace BookReviewingAPI.Repository.Auth
 
             // generate token 
 
-            var token = GenerateToken(user);
+            var token = await GenerateToken(user);
 
 
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
@@ -100,15 +100,19 @@ namespace BookReviewingAPI.Repository.Auth
             return new UserDTO();
         }
 
-        public string GenerateToken(ApplicationUser user)
+        public async Task<string> GenerateToken(ApplicationUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey!);
+
+
+            var roles = await _userManager.GetRolesAsync(user);
 
             List<Claim> claimList = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.Email,user.Email!),
                 new Claim(JwtRegisteredClaimNames.Name,user.Name!),
+                new Claim(ClaimTypes.Role , roles.FirstOrDefault())
             };
 
             var tokenDescripter = new SecurityTokenDescriptor()
