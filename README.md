@@ -64,12 +64,8 @@ When contributing, please ensure the following:
 - Write clear and concise commit messages.
 - Provide appropriate documentation for new features or changes.
 
-## License
-
-This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute the code for both personal and commercial purposes.
-
 ## Contact
 
-If you have any questions or inquiries regarding the BookReviewingAPI project, please contact the repository owner at [ahmedabdelsalam22@gmail.com](mailto:ahmedabdelsalam22@gmail.com).
+If you have any questions or inquiries regarding the BookReviewingAPI project, please contact the repository owner at [ahmedabdelsalam22@gmail.com](mailto:er909112@gmail.com).
 
 Thank you for your interest in the BookReviewingAPI!
